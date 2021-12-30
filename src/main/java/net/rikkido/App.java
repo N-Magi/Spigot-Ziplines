@@ -451,11 +451,11 @@ public class App extends JavaPlugin implements Listener {
         var items = player.getInventory().getItemInMainHand();
         if (items.getType() != Material.LEAD)
             return;
-        //var itemMeta = items.getItemMeta();
-        var container = player.getPersistentDataContainer();
+        var itemMeta = items.getItemMeta();
+        var container = itemMeta.getPersistentDataContainer();
         if (container.has(ENTITY_LEASHED, PersistentDataType.BYTE_ARRAY)) {
             container.remove(ENTITY_LEASHED);
-            //items.setItemMeta(itemMeta);
+            items.setItemMeta(itemMeta);
             return;
         }
         var world = player.getWorld();
@@ -466,7 +466,7 @@ public class App extends JavaPlugin implements Listener {
         if (isContain == false) {
 
             container.set(KEY, PersistentDataType.BYTE_ARRAY, serialize(dst_loc));
-            //items.setItemMeta(itemMeta);
+            items.setItemMeta(itemMeta);
             if (DEBUG)
                 getLogger().info("container wrote");
 

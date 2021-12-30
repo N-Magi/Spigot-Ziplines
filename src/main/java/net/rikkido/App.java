@@ -156,7 +156,7 @@ public class App extends JavaPlugin implements Listener {
                 dst_item.dst.getY() - loc.getY(),
                 dst_item.dst.getZ() - loc.getZ());
 
-        var r = getR(distDstPlayer);
+        var r = getRadius(distDstPlayer);
         if (r <= finishRadius) {
             if (DEBUG)
                 getLogger().info("call finish radius process");
@@ -164,7 +164,7 @@ public class App extends JavaPlugin implements Listener {
             return mplayer;
         }
 
-        var a = getR(dst_item.length);
+        var a = getRadius(dst_item.length);
         // var mul = speed / a;
         var mul = speed / r;
         // var length = dst_item.length.clone();
@@ -267,7 +267,8 @@ public class App extends JavaPlugin implements Listener {
         if (entity.getType() == EntityType.SLIME) {
             if (DEBUG)
                 getLogger().info("RopeClicked Slime");
-
+            if (entity.getCustomName() == null)
+                return;
             if (!entity.getCustomName().equals(CUSTOM_NAME)) {
                 getLogger().info(entity.getCustomName());
                 return;
@@ -334,6 +335,8 @@ public class App extends JavaPlugin implements Listener {
         var entity = e.getEntity();
         if (entity.getType() != EntityType.SLIME)
             return;
+        if (entity.getCustomName() == null)
+            return;
         if (!entity.getCustomName().equals(CUSTOM_NAME))
             return;
         e.setCancelled(true);
@@ -344,6 +347,8 @@ public class App extends JavaPlugin implements Listener {
         var entity = e.getEntity();
         if (entity.getType() != EntityType.LEASH_HITCH)
             return;
+        if (entity.getCustomName() == null)
+            return;
         if (!entity.getCustomName().equals(CUSTOM_NAME))
             return;
         e.setCancelled(true);
@@ -352,19 +357,22 @@ public class App extends JavaPlugin implements Listener {
     @EventHandler
     public void onEntityDropItem(EntityDropItemEvent e) {
         var entity = e.getEntity();
-        getLogger().info("drop: " + entity.getType());
+        if (DEBUG)
+            getLogger().info("drop: " + entity.getType());
         if (entity.getType() != EntityType.SLIME)
+            return;
+        if (entity.getCustomName() == null)
             return;
         if (!entity.getCustomName().equals(CUSTOM_NAME))
             return;
         e.setCancelled(true);
     }
 
-    public double getR(Location loc) {
+    public double getRadius(Location loc) {
         return Math.sqrt(Math.pow(loc.getX(), 2) + Math.pow(loc.getY(), 2) + Math.pow(loc.getZ(), 2));
     }
 
-    public double getR(org.bukkit.util.Vector loc) {
+    public double getRadius(org.bukkit.util.Vector loc) {
         return Math.sqrt(Math.pow(loc.getX(), 2) + Math.pow(loc.getY(), 2) + Math.pow(loc.getZ(), 2));
     }
 
@@ -443,11 +451,11 @@ public class App extends JavaPlugin implements Listener {
         var items = player.getInventory().getItemInMainHand();
         if (items.getType() != Material.LEAD)
             return;
-        var itemMeta = items.getItemMeta();
-        var container = itemMeta.getPersistentDataContainer();
+        //var itemMeta = items.getItemMeta();
+        var container = player.getPersistentDataContainer();
         if (container.has(ENTITY_LEASHED, PersistentDataType.BYTE_ARRAY)) {
             container.remove(ENTITY_LEASHED);
-            items.setItemMeta(itemMeta);
+            //items.setItemMeta(itemMeta);
             return;
         }
         var world = player.getWorld();
@@ -458,7 +466,7 @@ public class App extends JavaPlugin implements Listener {
         if (isContain == false) {
 
             container.set(KEY, PersistentDataType.BYTE_ARRAY, serialize(dst_loc));
-            items.setItemMeta(itemMeta);
+            //items.setItemMeta(itemMeta);
             if (DEBUG)
                 getLogger().info("container wrote");
 
@@ -472,7 +480,7 @@ public class App extends JavaPlugin implements Listener {
 
         var diff = src_loc.toVector().subtract(dst_loc.toVector());
         // 同じ場所でのラインは認めない
-        if (src_loc.equals(dst_loc) | getR(diff) <= 3.0f) {
+        if (src_loc.equals(dst_loc) | getRadius(diff) <= 3.0f) {
             player.sendMessage("can't setup Lines Same or Close");
             return;
         }

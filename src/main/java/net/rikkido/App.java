@@ -11,6 +11,9 @@ import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandExecutor;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -41,7 +44,7 @@ import org.bukkit.util.io.BukkitObjectOutputStream;
  * Hello world!
  *
  */
-public class App extends JavaPlugin implements Listener {
+public class App extends JavaPlugin implements Listener, CommandExecutor {
 
     List<MovePlayer> mplayer;
 
@@ -52,6 +55,18 @@ public class App extends JavaPlugin implements Listener {
 
     static String CUSTOM_NAME = "Rope";
     Boolean DEBUG = false;
+
+    @Override
+    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+        if (args.length < 1)
+            return false;
+        var arg = args[0];
+        if (arg == null)
+            return false;
+        if (arg.equals("DEBUG"))
+            DEBUG = DEBUG ? false : true;
+        return true;
+    }
 
     @Override
     public void onEnable() {
@@ -79,24 +94,26 @@ public class App extends JavaPlugin implements Listener {
                     MovePlayer mp = deserialize(container.get(ZIP_PLAYER, PersistentDataType.BYTE_ARRAY));
                     if (DEBUG)
                         getLogger().info("beforeZipping:" + mp.player);
-                    var res = playerZipping(mp);
-                    if (1.0f <= res.progress) {
+                    MovePlayer res = playerZipping(mp);
+                    if (res.isfinished) {
                         if (DEBUG)
                             getLogger().info("call zipline finish Process");
-                        var index = res.path.indexOf(res.dst);
-                        if (res.path.size() - 1 == index) {
+                        var nextloc = culculateNextPath(getPathSlime(player.getWorld(), res.dst), mp.oldlocs);
+                        if (nextloc == null) {
                             var p = Bukkit.getPlayer(res.player);
-                            p.setFallDistance(0);
+
                             p.setGravity(true);
                             container.remove(ZIP_PLAYER);
                             continue;
                         }
                         res.src = res.dst;
-                        res.dst = res.path.get(index + 1);
+                        res.dst = nextloc;
 
-                        res.dst.setY(res.dst.getY() - 2.5);
+                        res.oldlocs.add(nextloc);
 
-                        res.progress = 0.0f;
+                        res.dst.setY(res.dst.getY());
+
+                        res.isfinished = false;
                         res.length = res.dst.toVector().subtract(res.src.toVector());
                     }
                     if (DEBUG)
@@ -106,30 +123,31 @@ public class App extends JavaPlugin implements Listener {
                 }
 
             }
-        }.runTaskTimerAsynchronously(this, 0, 2);
+        }.runTaskTimer(this, 0, 2);
     }
 
     // 移動開始
     public void playerStartZipping(Player p, Entity e) {
-        List<Location> locs = new ArrayList<Location>();
-        locs = culculatePath(e, locs);
+        List<Location> oldLocs = new ArrayList<Location>();
+        Location loc = culculateNextPath(e, oldLocs);
 
-        if (DEBUG)
-            for (Location loc : locs) {
-                var s1 = String.format("%f, %f, %f", loc.getX(), loc.getY(), loc.getZ());
-                getLogger().info("answer: " + s1);
-            }
+        if (DEBUG) {
+            var s1 = String.format("%f, %f, %f", loc.getX(), loc.getY(), loc.getZ());
+            getLogger().info("answer: " + s1);
+        }
 
         var mp = new MovePlayer();
         mp.player = p.getUniqueId();
-        mp.dst = locs.get(1);// ここ要注意（マルチパス対応の時にひっかかかる）
-        mp.src = locs.get(0);// ここ注意
+        mp.dst = loc;// ここ要注意（マルチパス対応の時にひっかかかる）
+        mp.src = e.getLocation();// ここ
 
-        mp.dst.setY(mp.dst.getY() - 2.5);
+        mp.oldlocs = oldLocs;
+        mp.oldlocs.add(e.getLocation());
+        mp.oldlocs.add(loc);
 
-        mp.path = locs; // path情報書き込み
+        // mp.nxt = loc; // path情報書き込み
 
-        mp.progress = 0f;
+        mp.isfinished = false;
         mp.length = mp.dst.toVector().subtract(mp.src.toVector());
 
         var playerCcontainer = p.getPersistentDataContainer();
@@ -150,24 +168,22 @@ public class App extends JavaPlugin implements Listener {
         var player = Bukkit.getPlayer(mplayer.player);
         var loc = player.getLocation();
         var dst_item = mplayer;
-
+        player.setFallDistance(0);
         var distDstPlayer = new Location(player.getWorld(),
                 dst_item.dst.getX() - loc.getX(),
-                dst_item.dst.getY() - loc.getY(),
+                dst_item.dst.getY() - loc.getY() - 2.5,
                 dst_item.dst.getZ() - loc.getZ());
 
         var r = getRadius(distDstPlayer);
         if (r <= finishRadius) {
             if (DEBUG)
                 getLogger().info("call finish radius process");
-            mplayer.progress = 1.0f;
+            mplayer.isfinished = true;
             return mplayer;
         }
 
         var a = getRadius(dst_item.length);
-        // var mul = speed / a;
         var mul = speed / r;
-        // var length = dst_item.length.clone();
         var length = distDstPlayer.toVector();
         length.multiply(mul);
         player.setVelocity(length);
@@ -175,7 +191,6 @@ public class App extends JavaPlugin implements Listener {
             var s1 = String.format("%f, %f, %f @ %f", length.getX(), length.getY(), length.getZ(), mul);
             getLogger().info("velocity: " + s1);
         }
-        // mplayer.progress += mul;
         return mplayer;
 
     }
@@ -231,7 +246,6 @@ public class App extends JavaPlugin implements Listener {
         if (!container.has(ZIP_PLAYER, PersistentDataType.BYTE_ARRAY))
             return;
         container.remove(ZIP_PLAYER);
-        player.setFallDistance(0);
     }
 
     @EventHandler
@@ -377,7 +391,7 @@ public class App extends JavaPlugin implements Listener {
     }
 
     // pathを計算
-    public List<Location> culculatePath(Entity ropeEdge, List<Location> locs) {
+    public List<Location> culculateFullPath(Entity ropeEdge, List<Location> locs) {
         var world = ropeEdge.getWorld();
         var loc = ropeEdge.getLocation();
         var container = ropeEdge.getPersistentDataContainer();
@@ -398,8 +412,34 @@ public class App extends JavaPlugin implements Listener {
             var nextSlime = getPathSlime(world, nextloc);
             if (nextSlime == null)
                 return locs;
-            locs = culculatePath(nextSlime, locs);
+            locs = culculateFullPath(nextSlime, locs);
             return locs;
+        }
+        throw new NullPointerException("Path Slime PersistentDataContainerにデータが挿入されていません。");
+    }
+
+    public Location culculateNextPath(Entity ropeEdge, List<Location> oldlocs) {
+        var world = ropeEdge.getWorld();
+        var loc = ropeEdge.getLocation();
+        var container = ropeEdge.getPersistentDataContainer();
+        if (container.has(PATH_SLIME, PersistentDataType.BYTE_ARRAY)) {
+            var data = container.get(PATH_SLIME, PersistentDataType.BYTE_ARRAY);
+            List<Location> nextLocs = deserialize(data);
+
+            nextLocs.remove(ropeEdge.getLocation());
+            var copylocs = oldlocs;
+            nextLocs = nextLocs.stream().filter(f -> !copylocs.contains(f)).toList();
+
+            if (nextLocs.size() < 1)
+                return null;
+
+            var nl = nextLocs.get(0);
+            if (DEBUG) {
+                var s1 = String.format("%f, %f, %f", nl.getX(), nl.getY(), nl.getZ());
+                getLogger().info("answer: " + s1);
+            }
+
+            return nl;// ここあやういなー
         }
         throw new NullPointerException("Path Slime PersistentDataContainerにデータが挿入されていません。");
     }
@@ -419,7 +459,6 @@ public class App extends JavaPlugin implements Listener {
     }
 
     public Slime getPathSlime(World world, Location loc) {
-        // var world = p.getWorld();
         var entities = world.getNearbyEntities(loc, 1, 1, 1);
         var path_slime = entities.stream().filter(s -> s.getType().equals(EntityType.SLIME))
                 .filter(s -> s.getCustomName().equals(CUSTOM_NAME)).toList();

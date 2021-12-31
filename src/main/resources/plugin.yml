@@ -3,3 +3,8 @@ name: ziplines
 version: 0.1
 api: 1.18.1
 api-version: 1.18
+commands:
+  zipline:
+    description: ZipLineCommand
+    permission: op 
+    usage: run command with -help argument

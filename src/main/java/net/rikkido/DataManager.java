@@ -2,6 +2,8 @@ package net.rikkido;
 
 import java.util.List;
 
+import javax.xml.stream.events.Namespace;
+
 import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
@@ -15,12 +17,14 @@ public class DataManager {
     static NamespacedKey ZIP_PLAYER;
     static NamespacedKey ENTITY_LEASHED;
     static NamespacedKey PATH_SLIME;
+    static NamespacedKey ITEM_ZIPLINE;
 
     public static void setValues(Plugin namespace) {
         KEY = new NamespacedKey(namespace, "loc");
         PATH_SLIME = new NamespacedKey(namespace, "pathslime");
         ZIP_PLAYER = new NamespacedKey(namespace, "zipplayer");
         ENTITY_LEASHED = new NamespacedKey(namespace, "entityleashed");
+        ITEM_ZIPLINE = new NamespacedKey(namespace, "itemzipline");
     }
 
     public static List<Location> getData(Slime slime) {
@@ -81,7 +85,16 @@ public class DataManager {
         return null;
     }
 
+    public static void removeData(ItemStack rope) {
+        if (hasData(rope)) {
+            var meta = rope.getItemMeta();
+            meta.getPersistentDataContainer().remove(KEY);
+            rope.setItemMeta(meta);
+        }
+    }
+
     public static boolean hasData(ItemStack rope) {
         return rope.getItemMeta().getPersistentDataContainer().has(KEY, PersistentDataType.BYTE_ARRAY);
     }
+
 }

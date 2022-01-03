@@ -1,11 +1,18 @@
 package net.rikkido;
 
+import java.beans.PersistenceDelegate;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.xml.crypto.Data;
+
+import org.bukkit.Bukkit;
+import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.block.Block;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LeashHitch;
 import org.bukkit.entity.Player;
@@ -17,23 +24,81 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.PlayerLeashEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.Recipe;
+import org.bukkit.inventory.ShapedRecipe;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.scheduler.BukkitRunnable;
+
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.TextColor;
+import net.md_5.bungee.api.ChatColor;
 
 public class ZipLineManager implements Listener {
 
-    private static boolean DEBUG = true;
+    private static boolean DEBUG = false;
     private App _plugin;
+
+    public static NamespacedKey ITEM_ZIPLINE;
 
     public ZipLineManager(App plugin) {
         _plugin = plugin;
+
+        ITEM_ZIPLINE = new NamespacedKey(plugin, "itemzipline");
+
+        plugin.getServer().addRecipe(setupRecipe());
+
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                // zip中のプレイヤーのみ取得
+                for (Player player : Bukkit.getOnlinePlayers()) {
+                    var handItem = player.getInventory().getItemInMainHand();
+                    if (handItem.getType() != Material.LEAD)
+                        continue;
+                    var meta = handItem.getItemMeta();
+                    if (!meta.getPersistentDataContainer().has(ITEM_ZIPLINE, PersistentDataType.INTEGER))
+                        continue;
+                    if (DataManager.hasData(handItem)) {
+                        player.sendActionBar(Component
+                                .text(String.format("距離 %.1fブロック 開始地点を再度選択でキャンセル",
+                                        DataManager.getData(handItem).distance(player.getLocation())))
+                                .color(TextColor.color(255, 255, 0)));
+                        continue;
+                    }
+                    player.sendActionBar(Component
+                            .text("未設定")
+                            .color(TextColor.color(255, 255, 0)));
+
+                }
+            }
+        }.runTaskTimer(_plugin, 0, 2);
+
+    }
+
+    public ShapedRecipe setupRecipe() {
+        var item = new ItemStack(Material.LEAD);
+        var meta = item.getItemMeta();
+        meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+        meta.addEnchant(Enchantment.DURABILITY, 1, false);
+        meta.setDisplayName(ChatColor.RESET + "" + ChatColor.GOLD + "ジップライン");
+        meta.getPersistentDataContainer().set(ITEM_ZIPLINE, PersistentDataType.INTEGER, 1);
+        item.setItemMeta(meta);
+        ShapedRecipe recipeZipline = new ShapedRecipe(ITEM_ZIPLINE, item);
+        recipeZipline.shape("ILI");
+        recipeZipline.setIngredient('I', Material.IRON_INGOT);
+        recipeZipline.setIngredient('L', Material.LEAD);
+        return recipeZipline;
     }
 
     public void enableDebugMode(boolean flag) {
         DEBUG = flag;
     }
 
+    // レシピ追加
     public static Slime getPathSlime(Location loc) {
         var entities = loc.getWorld().getNearbyEntities(loc, 1, 1, 1);
         var path_slime = entities.stream().filter(s -> s.getType().equals(EntityType.SLIME))
@@ -58,19 +123,21 @@ public class ZipLineManager implements Listener {
         if (DEBUG)
             _plugin.getLogger().info("path list size: " + paths.size());
 
-        for (Location location : paths) {
-            var connectPathSlime = getPathSlime(location);
-            List<Location> connecList = DataManager.getData(connectPathSlime);
-            if (DEBUG)
-                _plugin.getLogger().info("bfore list size: " + connecList.size());
+        if (paths != null) {
+            for (Location location : paths) {
+                var connectPathSlime = getPathSlime(location);
+                List<Location> connecList = DataManager.getData(connectPathSlime);
+                if (DEBUG)
+                    _plugin.getLogger().info("bfore list size: " + connecList.size());
 
-            connecList.remove(pathslime.getLocation());
-            if (DEBUG)
-                _plugin.getLogger().info("after list size: " + connecList.size());
+                connecList.remove(pathslime.getLocation());
+                if (DEBUG)
+                    _plugin.getLogger().info("after list size: " + connecList.size());
 
-            if (connecList.size() < 1)
-                connectPathSlime.remove();
-            DataManager.setData(connectPathSlime, connecList);
+                if (connecList.size() < 1)
+                    connectPathSlime.remove();
+                DataManager.setData(connectPathSlime, connecList);
+            }
         }
         pathslime.remove();
         var item = new ItemStack(Material.LEAD);
@@ -115,7 +182,7 @@ public class ZipLineManager implements Listener {
                 Integer.MAX_VALUE, 1, false, false));
     }
 
-    public LeashHitch[] spawnHitches(Slime[] slimes) {
+    public Object[] spawnHitches(Slime[] slimes) {
         var res = new ArrayList<LeashHitch>();
         // どうせ消えるなら柵と同じ場所に生成させるようにする
         for (Slime slime : slimes) {
@@ -123,7 +190,7 @@ public class ZipLineManager implements Listener {
             res.add(hitch);
             slime.setLeashHolder(hitch);
         }
-        return (LeashHitch[]) res.toArray();
+        return res.toArray();
     }
 
     public LeashHitch spawnHitch(Slime slime) {
@@ -188,7 +255,11 @@ public class ZipLineManager implements Listener {
         var items = player.getInventory().getItemInMainHand();
         if (items.getType() != Material.LEAD)
             return;
-        var itemMeta = items.getItemMeta();
+        if (!items.getItemMeta().getPersistentDataContainer().has(ITEM_ZIPLINE, PersistentDataType.INTEGER)) {
+            player.sendMessage("バージョンアップによりレシピが変更されました。\nクラフトテーブルで、リードを鉄インゴットで挟み込むとアイテムが作成できます");
+            return;
+        }
+
         var world = player.getWorld();
         var dst_loc = clicked_block.getLocation().add(0.5, 0.25, 0.5);
 
@@ -206,17 +277,23 @@ public class ZipLineManager implements Listener {
         Location src_loc = DataManager.getData(items);
 
         var diff = src_loc.toVector().subtract(dst_loc.toVector());
-        // 同じ場所でのラインは認めない
-        if (src_loc.equals(dst_loc) | Calc.getRadius(diff) <= 3.0f) {
-            player.sendMessage("can't setup Lines Same or Close");
+        // 同じ場所でのラインは取り消し
+        if (src_loc.equals(dst_loc)) {
+            DataManager.removeData(items);
             return;
         }
-        // メタファイル初期化
-        var newMeta = new ItemStack(Material.LEAD).getItemMeta();
-        items.setItemMeta(newMeta);
+
+        if (Calc.getRadius(diff) <= 3.0f) {
+            player.sendMessage("近距離での接続はできません。");
+            return;
+        }
+
+        // ziplineアイテム削除
+        DataManager.removeData(items);
 
         if (Material.OAK_FENCE != world.getBlockAt(src_loc).getType()) {
-            player.sendMessage("Something Wrong at Start Point");
+            player.sendMessage("開始地点で何かが起きたようです 接続を削除します。");
+            DataManager.removeData(items);
             return;
         }
 

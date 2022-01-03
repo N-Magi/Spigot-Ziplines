@@ -20,7 +20,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 public class PlayerZippingManager implements Listener {
 
-    Boolean DEBUG = true;
+    Boolean DEBUG = false;
     private App _plugin;
 
     public PlayerZippingManager(App plugin) {

@@ -44,6 +44,8 @@ public class ZipLineManager implements Listener {
 
     public static NamespacedKey ITEM_ZIPLINE;
 
+    public ItemStack zipline;
+
     public ZipLineManager(App plugin) {
         _plugin = plugin;
 
@@ -87,6 +89,7 @@ public class ZipLineManager implements Listener {
         meta.setDisplayName(ChatColor.RESET + "" + ChatColor.GOLD + "ジップライン");
         meta.getPersistentDataContainer().set(ITEM_ZIPLINE, PersistentDataType.INTEGER, 1);
         item.setItemMeta(meta);
+        zipline = item;
         ShapedRecipe recipeZipline = new ShapedRecipe(ITEM_ZIPLINE, item);
         recipeZipline.shape("ILI");
         recipeZipline.setIngredient('I', Material.IRON_INGOT);
@@ -140,9 +143,9 @@ public class ZipLineManager implements Listener {
             }
         }
         pathslime.remove();
-        var item = new ItemStack(Material.LEAD);
-        item.setAmount(1);
-        world.dropItemNaturally(fenceLoc, item);
+        // var item = new ItemStack(Material.LEAD);
+        // item.setAmount(1);
+        world.dropItemNaturally(fenceLoc, zipline);
     }
 
     @EventHandler

@@ -17,6 +17,7 @@ import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.util.Vector;
 
 public class PlayerZippingManager implements Listener {
 
@@ -46,7 +47,7 @@ public class PlayerZippingManager implements Listener {
                         if (DEBUG)
                             _plugin.getLogger().info("call zipline finish Process");
                         var nextloc = culculateNextPath(ZipLineManager.getPathSlime(res.dst),
-                                mp.oldlocs);
+                                mp.oldlocs, player);
                         if (nextloc == null) {
                             var p = Bukkit.getPlayer(res.player);
 
@@ -77,7 +78,7 @@ public class PlayerZippingManager implements Listener {
     // 移動開始
     public void playerStartZipping(Player p, Slime e) {
         List<Location> oldLocs = new ArrayList<Location>();
-        Location loc = culculateNextPath((Slime) e, oldLocs);
+        Location loc = culculateNextPath((Slime) e, oldLocs, p);
 
         if (DEBUG) {
             var s1 = String.format("%f, %f, %f", loc.getX(), loc.getY(), loc.getZ());
@@ -244,11 +245,11 @@ public class PlayerZippingManager implements Listener {
         throw new NullPointerException("Path Slime PersistentDataContainerにデータが挿入されていません。");
     }
 
-    public Location culculateNextPath(Slime ropeEdge, List<Location> oldlocs) {
-        var world = ropeEdge.getWorld();
-        var loc = ropeEdge.getLocation();
+    public Location culculateNextPath(Slime ropeEdge, List<Location> oldlocs, Player player) {
+
         if (DataManager.hasData(ropeEdge)) {
             List<Location> nextLocs = DataManager.getData(ropeEdge);
+            var current = ropeEdge.getLocation();
             nextLocs.remove(ropeEdge.getLocation());
             var copylocs = oldlocs;
             nextLocs = nextLocs.stream().filter(f -> !copylocs.contains(f)).toList();
@@ -256,7 +257,38 @@ public class PlayerZippingManager implements Listener {
             if (nextLocs.size() < 1)
                 return null;
 
+            if (DEBUG) {
+                var s1 = String.format("pitch: %f,Yow: %f", player.getLocation().getPitch(),
+                        player.getLocation().getYaw());
+                _plugin.getLogger().info("player position: " + s1);
+            }
+
             var nl = nextLocs.get(0);
+            Double max = 0.0d;
+
+            for (var point : nextLocs) {
+                var vector = point.toVector().subtract(current.toVector());
+                vector = vector.normalize();
+                var tVector = new Vector();
+                tVector.setY(Math.sin(- player.getLocation().getPitch() / 180 * Math.PI));
+                tVector.setX(-Math.sin(player.getLocation().getYaw() / 180 * Math.PI));
+                tVector.setZ(Math.cos(player.getLocation().getYaw() / 180 * Math.PI));
+                tVector.normalize();
+                var diff = vector.dot(tVector);
+
+                if (DEBUG) {
+                    var s1 = String.format("%f, %f, %f", point.getX(), point.getY(), point.getZ());
+                    _plugin.getLogger().info("pos: " + s1);
+                    _plugin.getLogger().info("diff: " + diff);
+                }
+
+                if (diff >= max) {
+                    max = diff;
+                    nl = point;
+                }
+
+            }
+
             if (DEBUG) {
                 var s1 = String.format("%f, %f, %f", nl.getX(), nl.getY(), nl.getZ());
                 _plugin.getLogger().info("answer: " + s1);

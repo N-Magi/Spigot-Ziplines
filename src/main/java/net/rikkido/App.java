@@ -6,6 +6,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -24,6 +25,15 @@ public class App extends JavaPlugin implements Listener, CommandExecutor {
             return false;
         if (arg.equals("DEBUG"))
             DEBUG = DEBUG ? false : true;
+
+        if (arg.equals(("delete"))) {
+            var p = (Player) sender;
+            var slimes = p.getWorld().getNearbyEntities(p.getLocation(), 1, 1, 1);
+            for (var s : slimes) {
+                p.sendMessage(String.format("delete: ", s.getLocation()));
+                s.remove();
+            }
+        }
         return true;
     }
 

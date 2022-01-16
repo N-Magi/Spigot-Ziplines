@@ -121,7 +121,7 @@ public class PlayerZippingManager implements Listener {
                 dst_item.dst.getY() - loc.getY() - 2.5,
                 dst_item.dst.getZ() - loc.getZ());
 
-        var r = Calc.getRadius(distDstPlayer);
+        var r = distDstPlayer.length();
         if (r <= finishRadius) {
             if (DEBUG)
                 _plugin.getLogger().info("call finish radius process");
@@ -245,7 +245,7 @@ public class PlayerZippingManager implements Listener {
         throw new NullPointerException("Path Slime PersistentDataContainerにデータが挿入されていません。");
     }
 
-    public static Location culculateNextPath(Slime ropeEdge, List<Location> oldlocs, Player player) {
+    public Location culculateNextPath(Slime ropeEdge, List<Location> oldlocs, Player player) {
 
         if (DataManager.hasData(ropeEdge)) {
             List<Location> nextLocs = DataManager.getData(ropeEdge);
@@ -257,11 +257,11 @@ public class PlayerZippingManager implements Listener {
             if (nextLocs.size() < 1)
                 return null;
 
-            // if (DEBUG) {
-            //     var s1 = String.format("pitch: %f,Yow: %f", player.getLocation().getPitch(),
-            //             player.getLocation().getYaw());
-            //     _plugin.getLogger().info("player position: " + s1);
-            // }
+            if (DEBUG) {
+                var s1 = String.format("pitch: %f,Yow: %f", player.getLocation().getPitch(),
+                        player.getLocation().getYaw());
+                _plugin.getLogger().info("player position: " + s1);
+            }
 
             var nl = nextLocs.get(0);
             Double max = 0.0d;
@@ -276,11 +276,11 @@ public class PlayerZippingManager implements Listener {
                 tVector.normalize();
                 var diff = vector.dot(tVector);
 
-                // if (DEBUG) {
-                //     var s1 = String.format("%f, %f, %f", point.getX(), point.getY(), point.getZ());
-                //     _plugin.getLogger().info("pos: " + s1);
-                //     _plugin.getLogger().info("diff: " + diff);
-                // }
+                if (DEBUG) {
+                    var s1 = String.format("%f, %f, %f", point.getX(), point.getY(), point.getZ());
+                    _plugin.getLogger().info("pos: " + s1);
+                    _plugin.getLogger().info("diff: " + diff);
+                }
 
                 if (diff >= max) {
                     max = diff;
@@ -289,10 +289,10 @@ public class PlayerZippingManager implements Listener {
 
             }
 
-            // if (DEBUG) {
-            //     var s1 = String.format("%f, %f, %f", nl.getX(), nl.getY(), nl.getZ());
-            //     _plugin.getLogger().info("answer: " + s1);
-            // }
+            if (DEBUG) {
+                var s1 = String.format("%f, %f, %f", nl.getX(), nl.getY(), nl.getZ());
+                _plugin.getLogger().info("answer: " + s1);
+            }
 
             return nl;// ここあやういなー
         }

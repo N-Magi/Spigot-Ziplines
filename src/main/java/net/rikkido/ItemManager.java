@@ -1,7 +1,5 @@
 package net.rikkido;
 
-import javax.swing.InternalFrameFocusTraversalPolicy;
-
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -24,11 +22,12 @@ public class ItemManager {
         _plugin = plugin;
         ITEM_ZIPLINE = new NamespacedKey(plugin, "itemzipline");
 
-        addZiplineRecipe();
+        zipline = createZiplineItem();
+        addZiplineRecipe(zipline);
 
     }
 
-    public ShapedRecipe addZiplineRecipe() {
+    public ItemStack createZiplineItem() {
         var item = new ItemStack(Material.LEAD);
         var meta = item.getItemMeta();
         meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
@@ -36,7 +35,10 @@ public class ItemManager {
         meta.setDisplayName(ChatColor.RESET + "" + ChatColor.GOLD + "ジップライン");
         meta.getPersistentDataContainer().set(ITEM_ZIPLINE, PersistentDataType.INTEGER, 1);
         item.setItemMeta(meta);
-        zipline = item;
+        return item;
+    }
+
+    public ShapedRecipe addZiplineRecipe(ItemStack item) {
         ShapedRecipe recipeZipline = new ShapedRecipe(ITEM_ZIPLINE, item);
         recipeZipline.shape("ILI");
         recipeZipline.setIngredient('I', Material.IRON_INGOT);

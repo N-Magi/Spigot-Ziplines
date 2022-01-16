@@ -30,17 +30,11 @@ public class ZipLineManager implements Listener {
 
     private static boolean DEBUG = false;
     private App _plugin;
+    static String CUSTOM_NAME = "Rope";
 
-    // public static NamespacedKey ITEM_ZIPLINE;
-
-    // public ItemStack zipline;
 
     public ZipLineManager(App plugin) {
         _plugin = plugin;
-
-        // ITEM_ZIPLINE = new NamespacedKey(plugin, "itemzipline");
-
-        // plugin.getServer().addRecipe(setupRecipe());
 
         new BukkitRunnable() {
             @Override
@@ -69,23 +63,6 @@ public class ZipLineManager implements Listener {
 
     }
 
-    // public ShapedRecipe setupRecipe() {
-    // var item = new ItemStack(Material.LEAD);
-    // var meta = item.getItemMeta();
-    // meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-    // meta.addEnchant(Enchantment.DURABILITY, 1, false);
-    // meta.setDisplayName(ChatColor.RESET + "" + ChatColor.GOLD + "ジップライン");
-    // meta.getPersistentDataContainer().set(ITEM_ZIPLINE,
-    // PersistentDataType.INTEGER, 1);
-    // item.setItemMeta(meta);
-    // zipline = item;
-    // ShapedRecipe recipeZipline = new ShapedRecipe(ITEM_ZIPLINE, item);
-    // recipeZipline.shape("ILI");
-    // recipeZipline.setIngredient('I', Material.IRON_INGOT);
-    // recipeZipline.setIngredient('L', Material.LEAD);
-    // return recipeZipline;
-    // }
-
     public void enableDebugMode(boolean flag) {
         DEBUG = flag;
     }
@@ -113,7 +90,7 @@ public class ZipLineManager implements Listener {
         if (block.getType() != Material.OAK_FENCE)
             return;
         var fenceLoc = block.getLocation();
-        //var world = block.getWorld();
+        // var world = block.getWorld();
         var pathslime = getPathSlime(fenceLoc);
         if (pathslime == null)
             return;
@@ -138,8 +115,7 @@ public class ZipLineManager implements Listener {
             }
         }
         pathslime.remove();
-        // var item = new ItemStack(Material.LEAD);
-        // item.setAmount(1);
+
         _plugin.itemManager.dropZipline(fenceLoc);
     }
 
@@ -155,7 +131,7 @@ public class ZipLineManager implements Listener {
         item.setItemMeta(meta);
     }
 
-    // スライムの消去
+    // スライムの死亡無効化
     @EventHandler
     public void onEntityDeath(EntityDeathEvent e) {
         var entity = e.getEntity();
@@ -166,8 +142,7 @@ public class ZipLineManager implements Listener {
         e.setCancelled(true);
     }
 
-    static String CUSTOM_NAME = "Rope";
-
+    
     public static void slimeSet(Slime slime) {
         slime.setCustomName(CUSTOM_NAME);
         slime.setAI(false);
@@ -180,7 +155,7 @@ public class ZipLineManager implements Listener {
                 Integer.MAX_VALUE, 1, false, false));
     }
 
-    public Object[] spawnHitches(Slime[] slimes) {
+    private Object[] spawnHitches(Slime[] slimes) {
         var res = new ArrayList<LeashHitch>();
         // どうせ消えるなら柵と同じ場所に生成させるようにする
         for (Slime slime : slimes) {
@@ -203,7 +178,7 @@ public class ZipLineManager implements Listener {
 
     }
 
-    public Slime[] spawnSlimes(Location spawnLocation, Location destLocation) {
+    private Slime[] spawnSlimes(Location spawnLocation, Location destLocation) {
 
         var src = spawnSlime(spawnLocation);
         var dst = spawnSlime(destLocation);
@@ -280,7 +255,7 @@ public class ZipLineManager implements Listener {
             return;
         }
 
-        if (Calc.getRadius(diff) <= 3.0f) {
+        if (diff.length() <= 3.0f) {
             player.sendMessage("近距離での接続はできません。");
             return;
         }

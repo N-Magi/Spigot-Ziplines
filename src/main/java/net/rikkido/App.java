@@ -9,12 +9,19 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.checkerframework.common.returnsreceiver.qual.This;
 
 public class App extends JavaPlugin implements Listener, CommandExecutor {
 
     List<MovePlayer> mplayer;
 
     Boolean DEBUG = false;
+
+    public ZipLineManager ziplineManager = new ZipLineManager(this);
+    public PlayerZippingManager zippingManager = new PlayerZippingManager(this);
+    public ZipLineVisualizeManager visualManger = new ZipLineVisualizeManager(this);
+    public ItemManager itemManager = new ItemManager(this);
+
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
@@ -39,8 +46,9 @@ public class App extends JavaPlugin implements Listener, CommandExecutor {
 
     @Override
     public void onEnable() {
-        Bukkit.getPluginManager().registerEvents(new ZipLineManager(this), this);
-        Bukkit.getPluginManager().registerEvents(new PlayerZippingManager(this), this);
+        Bukkit.getPluginManager().registerEvents(ziplineManager, this);
+        Bukkit.getPluginManager().registerEvents(zippingManager, this);
+        Bukkit.getPluginManager().registerEvents(visualManger, this);
         DataManager.setValues(this);
 
     }

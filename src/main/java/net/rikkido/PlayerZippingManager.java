@@ -19,6 +19,9 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.TextColor;
+
 public class PlayerZippingManager implements Listener {
 
     Boolean DEBUG = false;
@@ -43,6 +46,11 @@ public class PlayerZippingManager implements Listener {
                     if (DEBUG)
                         _plugin.getLogger().info("beforeZipping:" + mp.player);
                     MovePlayer res = playerZipping(mp);
+
+                    player.sendActionBar(Component
+                                .text(String.format("`shit`キーで途中下車"))
+                                .color(TextColor.color(255, 255, 0)));
+
                     if (res.isfinished) {
                         if (DEBUG)
                             _plugin.getLogger().info("call zipline finish Process");
@@ -145,8 +153,6 @@ public class PlayerZippingManager implements Listener {
     @EventHandler
     public void onPlayerToggleSneak(PlayerToggleSneakEvent e) {
         var player = e.getPlayer();
-        if (player.isSneaking() == false)
-            return;
         if (player.hasGravity() == false)
             player.setGravity(true);
         DataManager.removeData(player);

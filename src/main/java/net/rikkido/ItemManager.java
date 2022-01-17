@@ -4,6 +4,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ShapedRecipe;
@@ -11,7 +12,7 @@ import org.bukkit.persistence.PersistentDataType;
 
 import net.md_5.bungee.api.ChatColor;
 
-public class ItemManager {
+public class ItemManager implements Listener{
     App _plugin;
 
     public ItemStack zipline;
@@ -25,6 +26,8 @@ public class ItemManager {
         zipline = createZiplineItem();
         var recipe = addZiplineRecipe(zipline);
         plugin.getServer().addRecipe(recipe);
+
+        
     }
 
     public ItemStack createZiplineItem() {

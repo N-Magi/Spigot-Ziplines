@@ -16,11 +16,10 @@ public class App extends JavaPlugin implements Listener, CommandExecutor {
 
     Boolean DEBUG = false;
 
-    public ZipLineManager ziplineManager = new ZipLineManager(this);
-    public PlayerZippingManager zippingManager = new PlayerZippingManager(this);
-    public ZipLineVisualizeManager visualManger = new ZipLineVisualizeManager(this);
-    public ItemManager itemManager = new ItemManager(this);
-
+    public ZipLineManager ziplineManager;
+    public PlayerZippingManager zippingManager;
+    public ZipLineVisualizeManager visualManger;
+    public ItemManager itemManager;
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
@@ -45,6 +44,11 @@ public class App extends JavaPlugin implements Listener, CommandExecutor {
 
     @Override
     public void onEnable() {
+        ziplineManager = new ZipLineManager(this);
+        zippingManager = new PlayerZippingManager(this);
+        visualManger = new ZipLineVisualizeManager(this);
+        itemManager = new ItemManager(this);
+
         Bukkit.getPluginManager().registerEvents(ziplineManager, this);
         Bukkit.getPluginManager().registerEvents(zippingManager, this);
         Bukkit.getPluginManager().registerEvents(visualManger, this);

@@ -23,8 +23,8 @@ public class ItemManager {
         ITEM_ZIPLINE = new NamespacedKey(plugin, "itemzipline");
 
         zipline = createZiplineItem();
-        addZiplineRecipe(zipline);
-
+        var recipe = addZiplineRecipe(zipline);
+        plugin.getServer().addRecipe(recipe);
     }
 
     public ItemStack createZiplineItem() {
@@ -46,9 +46,11 @@ public class ItemManager {
         return recipeZipline;
     }
 
-    public void dropZipline(Location loc) {
+    public void dropZipline(Location loc, int amount) {
         var world = loc.getWorld();
-        world.dropItemNaturally(loc, zipline);
+        var dropItem = zipline.clone();
+        dropItem.setAmount(amount);
+        world.dropItemNaturally(loc, dropItem);
     }
 
     public void consumptionZipline(ItemStack zipline) {

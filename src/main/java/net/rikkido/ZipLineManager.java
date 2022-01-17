@@ -32,7 +32,6 @@ public class ZipLineManager implements Listener {
     private App _plugin;
     static String CUSTOM_NAME = "Rope";
 
-
     public ZipLineManager(App plugin) {
         _plugin = plugin;
 
@@ -44,12 +43,12 @@ public class ZipLineManager implements Listener {
                     var handItem = player.getInventory().getItemInMainHand();
                     if (handItem.getType() != Material.LEAD)
                         continue;
-                    if (plugin.itemManager.isZiplineItem(handItem))
+                    if (!plugin.itemManager.isZiplineItem(handItem))
                         continue;
-                    if (DataManager.hasData(handItem)) {
+                    if (plugin.itemManager.isZiplineFlaged(handItem)) {
                         player.sendActionBar(Component
                                 .text(String.format("距離 %.1fブロック 開始地点を再度選択でキャンセル",
-                                        DataManager.getData(handItem).distance(player.getLocation())))
+                                        plugin.itemManager.getZiplineFlag(handItem).distance(player.getLocation())))
                                 .color(TextColor.color(255, 255, 0)));
                         continue;
                     }
@@ -76,7 +75,7 @@ public class ZipLineManager implements Listener {
         return (Slime) path_slime.get(0);
     }
 
-    public static List<Entity> getPathSlimes(Location loc, int x, int y, int z) {
+    public static List<Entity> getPathSlimes(Location loc, Float x, Float y, Float z) {
         var entities = loc.getWorld().getNearbyEntities(loc, x, y, z);
         var path_slime = entities.stream().filter(s -> s.getType().equals(EntityType.SLIME))
                 .filter(s -> DataManager.hasData((Slime) s)).toList();
@@ -116,7 +115,7 @@ public class ZipLineManager implements Listener {
         }
         pathslime.remove();
 
-        _plugin.itemManager.dropZipline(fenceLoc);
+        _plugin.itemManager.dropZipline(fenceLoc, paths.size());
     }
 
     @EventHandler
@@ -142,7 +141,6 @@ public class ZipLineManager implements Listener {
         e.setCancelled(true);
     }
 
-    
     public static void slimeSet(Slime slime) {
         slime.setCustomName(CUSTOM_NAME);
         slime.setAI(false);

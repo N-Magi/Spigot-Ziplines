@@ -23,7 +23,7 @@ public class ZipLineVisualizeManager implements Listener {
                 if (stage >= STAGEMAX)
                     stage = 0;
                 for (var a : plugin.getServer().getOnlinePlayers()) {
-                    var silmes = ZipLineManager.getPathSlimes(a.getLocation(), 20, 20, 20);
+                    var silmes = ZipLineManager.getPathSlimes(a.getLocation(), 20f, 20f, 20f);
                     if (silmes.size() < 1)
                         continue;
                     for (var slime : silmes) {

@@ -1,5 +1,10 @@
 package net.rikkido;
 
+import java.beans.PersistenceDelegate;
+
+import javax.xml.stream.events.Namespace;
+
+import org.apache.logging.log4j.message.Message;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -11,23 +16,49 @@ import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.persistence.PersistentDataType;
 
 import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.chat.hover.content.Item;
 
-public class ItemManager implements Listener{
+public class ItemManager implements Listener {
     App _plugin;
 
     public ItemStack zipline;
+    public ItemStack debugStick;
 
     public static NamespacedKey ITEM_ZIPLINE;
+    public static NamespacedKey DEBUG;
 
     public ItemManager(App plugin) {
         _plugin = plugin;
         ITEM_ZIPLINE = new NamespacedKey(plugin, "itemzipline");
+        DEBUG = new NamespacedKey(plugin, "debug");
 
         zipline = createZiplineItem();
         var recipe = addZiplineRecipe(zipline);
         plugin.getServer().addRecipe(recipe);
 
-        
+
+        debugStick = createDebuggerStick();
+    }
+
+    public ItemStack createDebuggerStick() {
+        var items = new ItemStack(Material.STICK);
+        var meta = items.getItemMeta();
+        meta.addEnchant(Enchantment.DURABILITY, 1, false);
+        meta.getPersistentDataContainer().set(DEBUG, PersistentDataType.INTEGER, 1);
+        meta.setDisplayName(ChatColor.RESET + "" + ChatColor.GOLD + "デバッグ棒");
+        items.setItemMeta(meta);
+        return items;
+    }
+    public void dropDebugStick(Location loc, int amount) {
+        var world = loc.getWorld();
+        var dropItem = debugStick.clone();
+        dropItem.setAmount(amount);
+        world.dropItemNaturally(loc, dropItem);
+    }
+
+    public boolean isDebugStickItem(ItemStack zipline) {
+        if(zipline.getType() != Material.STICK) return false;
+        return zipline.getItemMeta().getPersistentDataContainer().has(DEBUG, PersistentDataType.INTEGER);
     }
 
     public ItemStack createZiplineItem() {

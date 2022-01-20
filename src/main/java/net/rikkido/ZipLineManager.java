@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -22,6 +23,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.jetbrains.annotations.NotNull;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
@@ -66,20 +68,73 @@ public class ZipLineManager implements Listener {
         DEBUG = flag;
     }
 
+    private static Chunk ensureChunk(Location loc) {
+        var chunk = loc.getChunk();
+        if (!chunk.isLoaded()) {
+            chunk.load();
+        }
+
+        return chunk;
+    }
+
     public static Slime getPathSlime(Location loc) {
-        var entities = loc.getWorld().getNearbyEntities(loc, 1, 1, 1);
-        var path_slime = entities.stream().filter(s -> s.getType().equals(EntityType.SLIME))
-                .filter(s -> DataManager.hasData((Slime) s)).toList();
+        var path_slime = getPathSlimes(loc, 1f, 1f, 1f);
         if (path_slime.size() < 1)
             return null;
+
         return (Slime) path_slime.get(0);
     }
 
     public static List<Entity> getPathSlimes(Location loc, Float x, Float y, Float z) {
+        var chunk = ensureChunk(loc);
+
         var entities = loc.getWorld().getNearbyEntities(loc, x, y, z);
         var path_slime = entities.stream().filter(s -> s.getType().equals(EntityType.SLIME))
                 .filter(s -> DataManager.hasData((Slime) s)).toList();
+
+        chunk.unload();
         return path_slime;
+    }
+
+    public static boolean verifyPath(Slime slime){
+        var pathes = DataManager.getData(slime);
+        var clone = pathes;
+        var loc = slime.getLocation();
+        for (var path : clone) {
+            var chunk = ensureChunk(path);
+            var dSlime = getPathSlime(path);
+            if (dSlime == null) {
+                chunk.unload();
+                return false;
+            }
+            var result = DataManager.getData(dSlime).stream().filter(f -> f.equals(loc)).toList();
+            if (result.size() < 1) {
+                chunk.unload();
+                return false;
+            }
+            chunk.unload();
+        }
+        return true;
+
+    }
+
+    public static void validatePathes(Slime slime) {
+        var pathes = DataManager.getData(slime);
+        var clone = pathes;
+        var loc = slime.getLocation();
+        for (var path : clone) {
+            var dSlime = getPathSlime(path);
+            if (dSlime == null) {
+                pathes.remove(path);
+                continue;
+            }
+            var result = DataManager.getData(dSlime).stream().filter(f -> f == loc).toList();
+            if (result.size() < 1) {
+                pathes.remove(path);
+                continue;
+            }
+        }
+        DataManager.setData(slime, pathes);
     }
 
     // path破壊処理
@@ -89,7 +144,9 @@ public class ZipLineManager implements Listener {
         if (block.getType() != Material.OAK_FENCE)
             return;
         var fenceLoc = block.getLocation();
-        // var world = block.getWorld();
+
+        var chunk = ensureChunk(fenceLoc);
+
         var pathslime = getPathSlime(fenceLoc);
         if (pathslime == null)
             return;
@@ -116,6 +173,11 @@ public class ZipLineManager implements Listener {
         pathslime.remove();
 
         _plugin.itemManager.dropZipline(fenceLoc, paths.size());
+        chunk.unload();
+    }
+
+    public void rmPath(Location loc, List<Location> pathes) {
+
     }
 
     @EventHandler
@@ -200,11 +262,13 @@ public class ZipLineManager implements Listener {
     }
 
     public Slime spawnSlime(Location spawnLoc) {
+        var chunk = ensureChunk(spawnLoc);
         var slime = getPathSlime(spawnLoc);
         if (slime == null) {
             slime = (Slime) spawnLoc.getWorld().spawnEntity(spawnLoc, EntityType.SLIME);
             slimeSet(slime);
         }
+        chunk.unload();
         return slime;
     }
 
@@ -271,4 +335,5 @@ public class ZipLineManager implements Listener {
         _plugin.itemManager.consumptionZipline(items);
 
     }
+
 }

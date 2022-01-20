@@ -20,6 +20,7 @@ public class App extends JavaPlugin implements Listener, CommandExecutor {
     public PlayerZippingManager zippingManager;
     public ZipLineVisualizeManager visualManger;
     public ItemManager itemManager;
+    public Debugger debugger;
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
@@ -28,8 +29,10 @@ public class App extends JavaPlugin implements Listener, CommandExecutor {
         var arg = args[0];
         if (arg == null)
             return false;
-        if (arg.equals("DEBUG"))
-            DEBUG = DEBUG ? false : true;
+        if (arg.equals("DEBUG")) {
+            var p = (Player) sender;
+            itemManager.dropDebugStick(p.getLocation(), 1);
+        }
 
         if (arg.equals(("delete"))) {
             var p = (Player) sender;
@@ -48,10 +51,12 @@ public class App extends JavaPlugin implements Listener, CommandExecutor {
         zippingManager = new PlayerZippingManager(this);
         visualManger = new ZipLineVisualizeManager(this);
         itemManager = new ItemManager(this);
+        debugger = new Debugger(this);
 
         Bukkit.getPluginManager().registerEvents(ziplineManager, this);
         Bukkit.getPluginManager().registerEvents(zippingManager, this);
         Bukkit.getPluginManager().registerEvents(visualManger, this);
+        Bukkit.getPluginManager().registerEvents(debugger, this);
         DataManager.setValues(this);
 
     }

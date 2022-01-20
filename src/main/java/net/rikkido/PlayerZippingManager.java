@@ -48,14 +48,15 @@ public class PlayerZippingManager implements Listener {
                     MovePlayer res = playerZipping(mp);
 
                     player.sendActionBar(Component
-                                .text(String.format("`shit`キーで途中下車"))
-                                .color(TextColor.color(255, 255, 0)));
+                            .text(String.format("`shit`キーで途中下車"))
+                            .color(TextColor.color(255, 255, 0)));
 
                     if (res.isfinished) {
                         if (DEBUG)
                             _plugin.getLogger().info("call zipline finish Process");
                         var nextloc = culculateNextPath(ZipLineManager.getPathSlime(res.dst),
                                 mp.oldlocs, player);
+
                         if (nextloc == null) {
                             var p = Bukkit.getPlayer(res.player);
 
@@ -137,7 +138,7 @@ public class PlayerZippingManager implements Listener {
             return mplayer;
         }
 
-        //var a = Calc.getRadius(dst_item.length);
+        // var a = Calc.getRadius(dst_item.length);
         var mul = speed / r;
         var length = distDstPlayer.toVector();
         length.multiply(mul);
@@ -171,6 +172,9 @@ public class PlayerZippingManager implements Listener {
             return;
 
         if (!e.getHand().equals(EquipmentSlot.HAND))
+            return;
+
+        if (_plugin.itemManager.isDebugStickItem(e.getPlayer().getInventory().getItemInMainHand()))
             return;
 
         var entity = e.getRightClicked();
@@ -227,7 +231,7 @@ public class PlayerZippingManager implements Listener {
 
     // pathを計算
     public static List<Location> culculateFullPath(Slime nextSlime2, List<Location> locs) {
-        //var world = nextSlime2.getWorld();
+        // var world = nextSlime2.getWorld();
         var loc = nextSlime2.getLocation();
         if (DataManager.hasData(nextSlime2)) {
             List<Location> nextLocs = DataManager.getData(nextSlime2);
@@ -254,6 +258,8 @@ public class PlayerZippingManager implements Listener {
     public Location culculateNextPath(Slime ropeEdge, List<Location> oldlocs, Player player) {
 
         if (DataManager.hasData(ropeEdge)) {
+            // ZipLineManager.validatePathes(ropeEdge);
+            ZipLineManager.slimeSet(ropeEdge);
             List<Location> nextLocs = DataManager.getData(ropeEdge);
             var current = ropeEdge.getLocation();
             nextLocs.remove(ropeEdge.getLocation());
@@ -276,7 +282,7 @@ public class PlayerZippingManager implements Listener {
                 var vector = point.toVector().subtract(current.toVector());
                 vector = vector.normalize();
                 var tVector = new Vector();
-                tVector.setY(Math.sin(- player.getLocation().getPitch() / 180 * Math.PI));
+                tVector.setY(Math.sin(-player.getLocation().getPitch() / 180 * Math.PI));
                 tVector.setX(-Math.sin(player.getLocation().getYaw() / 180 * Math.PI));
                 tVector.setZ(Math.cos(player.getLocation().getYaw() / 180 * Math.PI));
                 tVector.normalize();

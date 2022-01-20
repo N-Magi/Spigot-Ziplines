@@ -37,6 +37,8 @@ public class Debugger implements Listener {
         var item = player.getInventory().getItemInMainHand();
         if (item.getType() != Material.STICK)
             return;
+        if (event.getHand() == null)
+            return;
         if (!event.getHand().equals(EquipmentSlot.HAND))
             return;
         if (!_plugin.itemManager.isDebugStickItem(item))
@@ -47,7 +49,7 @@ public class Debugger implements Listener {
             return;
         }
 
-        showEntitys(player, block.getLocation(),0.5f, 0.5f, 0.5f);
+        showEntitys(player, block.getLocation(), 0.5f, 0.5f, 0.5f);
     }
 
     public void showEntitys(Player player, Location loc, float x, float y, float z) {
@@ -61,7 +63,8 @@ public class Debugger implements Listener {
         text += "DEBUG";
         for (int i = 0; i < 24; i++)
             text += "=";
-        text += String.format("ブロック: %.3f, %.3f, %.3f\n", loc.getX(), loc.getY(), loc.getZ());
+        text += String.format("ブロック: %.3f, %.3f, %.3f @ %.3f, %.3f, %.3f\n", loc.getX(), loc.getY(), loc.getZ(), x, y,
+                z);
         text += String.format("付近のノード数: %d\n", slimes.size());
 
         compB.append(text);
@@ -91,6 +94,7 @@ public class Debugger implements Listener {
                         path.getY(),
                         path.getZ(), ZipLineManager.verifyPath(slime)));
             }
+
 
             // 現在の向きで選択される経路
             List<Location> a = new ArrayList<Location>();

@@ -71,9 +71,8 @@ public class ZipLineManager implements Listener {
     private static Chunk ensureChunk(Location loc) {
         var chunk = loc.getChunk();
         if (!chunk.isLoaded()) {
-            chunk.load();
+            chunk.setForceLoaded(true);
         }
-
         return chunk;
     }
 
@@ -97,7 +96,7 @@ public class ZipLineManager implements Listener {
         return path_slime;
     }
 
-    public static boolean verifyPath(Slime slime){
+    public static boolean verifyPath(Slime slime) {
         var pathes = DataManager.getData(slime);
         var clone = pathes;
         var loc = slime.getLocation();
@@ -147,6 +146,11 @@ public class ZipLineManager implements Listener {
         var fenceLoc = block.getLocation();
 
         var chunk = ensureChunk(fenceLoc);
+
+        if (!chunk.isLoaded()) {
+            e.getPlayer().sendMessage("チャンクがロードされていません　破壊に失敗しました");
+            e.setCancelled(true);
+        }
 
         var pathslime = getPathSlime(fenceLoc);
         if (pathslime == null)

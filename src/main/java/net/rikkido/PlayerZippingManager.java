@@ -111,6 +111,7 @@ public class PlayerZippingManager implements Listener {
         DataManager.setData(p, mp);
         if (DEBUG)
             _plugin.getLogger().info("has data? : " + DataManager.hasData(p));
+
         p.setGravity(false);
 
     }

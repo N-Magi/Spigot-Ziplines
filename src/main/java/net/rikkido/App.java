@@ -1,12 +1,16 @@
 package net.rikkido;
 
 import java.util.List;
+import java.util.UUID;
+
+import javax.swing.text.html.parser.Entity;
 
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Slime;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -36,6 +40,20 @@ public class App extends JavaPlugin implements Listener, CommandExecutor {
 
         if (arg.equals(("delete"))) {
             var p = (Player) sender;
+            if (args.length == 2) {
+                var id = args[1];
+                var slime = (Slime) p.getWorld().getEntity(UUID.fromString(id));
+                if (slime == null) {
+                    p.sendMessage(String.format("%sは存在しません", id));
+                    return false;
+                }
+                if (DataManager.hasData(slime)) {
+                    slime.remove();
+                }
+                p.sendMessage(String.format("%sを削除しました", id));
+                return true;
+            }
+
             var slimes = p.getWorld().getNearbyEntities(p.getLocation(), 1, 1, 1);
             for (var s : slimes) {
                 p.sendMessage(String.format("delete: ", s.getLocation()));

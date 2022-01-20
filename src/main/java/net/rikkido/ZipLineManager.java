@@ -78,7 +78,7 @@ public class ZipLineManager implements Listener {
     }
 
     public static Slime getPathSlime(Location loc) {
-        var path_slime = getPathSlimes(loc, 1f, 1f, 1f);
+        var path_slime = getPathSlimes(loc, 0.5f, 0.5f, 0.5f);
         if (path_slime.size() < 1)
             return null;
 
@@ -87,8 +87,9 @@ public class ZipLineManager implements Listener {
 
     public static List<Entity> getPathSlimes(Location loc, Float x, Float y, Float z) {
         var chunk = ensureChunk(loc);
-
-        var entities = loc.getWorld().getNearbyEntities(loc, x, y, z);
+        var cloc = loc.clone();
+        cloc.add(0.5, 0.25, 0.5);
+        var entities = cloc.getWorld().getNearbyEntities(cloc, x, y, z);
         var path_slime = entities.stream().filter(s -> s.getType().equals(EntityType.SLIME))
                 .filter(s -> DataManager.hasData((Slime) s)).toList();
 

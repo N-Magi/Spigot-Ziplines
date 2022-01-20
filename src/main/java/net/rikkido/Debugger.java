@@ -47,7 +47,7 @@ public class Debugger implements Listener {
             return;
         }
 
-        showEntitys(player, block.getLocation(), 0.6f, 0.5f, 0.6f);
+        showEntitys(player, block.getLocation(),0.5f, 0.5f, 0.5f);
     }
 
     public void showEntitys(Player player, Location loc, float x, float y, float z) {

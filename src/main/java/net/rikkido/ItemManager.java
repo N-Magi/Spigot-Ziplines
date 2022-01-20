@@ -38,6 +38,8 @@ public class ItemManager implements Listener {
 
 
         debugStick = createDebuggerStick();
+        var recc = addDebuggerStickRecipe(debugStick);
+        plugin.getServer().addRecipe(recc);
     }
 
     public ItemStack createDebuggerStick() {
@@ -48,6 +50,14 @@ public class ItemManager implements Listener {
         meta.setDisplayName(ChatColor.RESET + "" + ChatColor.GOLD + "デバッグ棒");
         items.setItemMeta(meta);
         return items;
+    }
+
+    public ShapedRecipe addDebuggerStickRecipe(ItemStack item) {
+        ShapedRecipe recipeZipline = new ShapedRecipe(DEBUG, item);
+        recipeZipline.shape("D","S");
+        recipeZipline.setIngredient('D', Material.DIAMOND);
+        recipeZipline.setIngredient('S', Material.STICK);
+        return recipeZipline;
     }
     public void dropDebugStick(Location loc, int amount) {
         var world = loc.getWorld();

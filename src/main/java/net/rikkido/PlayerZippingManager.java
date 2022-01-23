@@ -8,6 +8,7 @@ import org.bukkit.Location;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Slime;
+import org.bukkit.entity.Turtle;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDropItemEvent;
@@ -125,6 +126,12 @@ public class PlayerZippingManager implements Listener {
         var player = Bukkit.getPlayer(mplayer.player);
         var loc = player.getLocation();
         var dst_item = mplayer;
+
+        //異なるワールドでの移動について中止
+        if (!loc.getWorld().equals(dst_item.dst.getWorld())) {
+            mplayer.isfinished = true;
+            return mplayer;
+        }
         player.setFallDistance(0);
         var distDstPlayer = new Location(player.getWorld(),
                 dst_item.dst.getX() - loc.getX(),

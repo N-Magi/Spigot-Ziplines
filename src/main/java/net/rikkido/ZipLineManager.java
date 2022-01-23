@@ -23,7 +23,6 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.jetbrains.annotations.NotNull;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
@@ -71,17 +70,37 @@ public class ZipLineManager implements Listener {
     private static Chunk ensureChunk(Location loc) {
         var chunk = loc.getChunk();
         if (!chunk.isLoaded()) {
-            chunk.setForceLoaded(true);
+            chunk.load(true);
         }
         return chunk;
+    }
+
+    private static Entity mergePathSlime(List<Entity> slimes) {
+
+        if (slimes.size() <= 1)
+            return (Slime) slimes.get(0);
+        var mainSlime = slimes.get(0);
+        var data = DataManager.getData((Slime) mainSlime);
+        // slimes.remove(0);
+        for (int idx = 1; idx < slimes.size(); idx++) {
+            var slime = slimes.get(idx);
+            var sdata = DataManager.getData((Slime) slime);
+            for (var loc : sdata)
+                if (!data.contains(loc))
+                    data.add(loc);
+            slime.remove();
+        }
+        DataManager.setData((Slime) mainSlime, data);
+        return mainSlime;
+
     }
 
     public static Slime getPathSlime(Location loc) {
         var path_slime = getPathSlimes(loc, 0.5f, 0.5f, 0.5f);
         if (path_slime.size() < 1)
             return null;
-
-        return (Slime) path_slime.get(0);
+        var slime = (Slime) mergePathSlime(path_slime);
+        return slime;
     }
 
     public static List<Entity> getPathSlimes(Location loc, Float x, Float y, Float z) {
@@ -91,7 +110,6 @@ public class ZipLineManager implements Listener {
         var entities = cloc.getWorld().getNearbyEntities(cloc, x, y, z);
         var path_slime = entities.stream().filter(s -> s.getType().equals(EntityType.SLIME))
                 .filter(s -> DataManager.hasData((Slime) s)).toList();
-
         chunk.unload();
         return path_slime;
     }
@@ -332,6 +350,14 @@ public class ZipLineManager implements Listener {
             _plugin.itemManager.removeZiplineFlag(items);
             return;
         }
+
+        var path = getPathSlime(src_loc);
+        if (path != null)
+            if (DataManager.getData(path).contains(dst_loc)) {
+                player.sendMessage("二度付け禁止ダメ絶対, 経路消しとくよ");
+                _plugin.itemManager.removeZiplineFlag(items);
+                return;
+            }
 
         var slimes = spawnSlimes(src_loc, dst_loc);
         spawnHitches(slimes);

@@ -7,14 +7,14 @@ import org.bukkit.entity.Slime;
 import org.bukkit.event.Listener;
 import org.bukkit.scheduler.BukkitRunnable;
 
-public class ZipLineVisualizeManager implements Listener {
+public class ZiplineVisualizeManager implements Listener {
 
     App _plugin;
     double particlePerBlock = 1.0;
     int stage = 0;
     static Double STAGEMAX = 20.0;
 
-    public ZipLineVisualizeManager(App plugin) {
+    public ZiplineVisualizeManager(App plugin) {
         _plugin = plugin;
         new BukkitRunnable() {
             @Override
@@ -23,7 +23,7 @@ public class ZipLineVisualizeManager implements Listener {
                 if (stage >= STAGEMAX)
                     stage = 0;
                 for (var a : plugin.getServer().getOnlinePlayers()) {
-                    var silmes = ZipLineManager.getPathSlimes(a.getLocation(), 20f, 20f, 20f);
+                    var silmes = ZiplineManager.getPathSlimes(a.getLocation(), 20f, 20f, 20f);
                     if (silmes.size() < 1)
                         continue;
                     for (var slime : silmes) {

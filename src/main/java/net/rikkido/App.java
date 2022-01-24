@@ -18,9 +18,9 @@ public class App extends JavaPlugin implements Listener, CommandExecutor {
 
     Boolean DEBUG = false;
 
-    public ZipLineManager ziplineManager;
+    public ZiplineManager ziplineManager;
     public PlayerZippingManager zippingManager;
-    public ZipLineVisualizeManager visualManger;
+    public ZiplineVisualizeManager visualManger;
     public ZiplineItem ziplimeitem;
     public DebugStickItem debugitem;
 
@@ -63,9 +63,9 @@ public class App extends JavaPlugin implements Listener, CommandExecutor {
 
     @Override
     public void onEnable() {
-        ziplineManager = new ZipLineManager(this);
+        ziplineManager = new ZiplineManager(this);
         zippingManager = new PlayerZippingManager(this);
-        visualManger = new ZipLineVisualizeManager(this);
+        visualManger = new ZiplineVisualizeManager(this);
         ziplimeitem = new ZiplineItem(this);
         debugitem = new DebugStickItem(this);
 

@@ -27,13 +27,13 @@ import org.bukkit.scheduler.BukkitRunnable;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
 
-public class ZipLineManager implements Listener {
+public class ZiplineManager implements Listener {
 
     private static boolean DEBUG = false;
     private App _plugin;
     static String CUSTOM_NAME = "Rope";
 
-    public ZipLineManager(App plugin) {
+    public ZiplineManager(App plugin) {
         _plugin = plugin;
 
         new BukkitRunnable() {

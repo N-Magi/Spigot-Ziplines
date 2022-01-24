@@ -98,7 +98,7 @@ public class DebugStickItem implements IItemBase {
 
     public void showEntitys(Player player, Location loc, float x, float y, float z) {
         // 設定されている経路情報
-        var slimes = ZipLineManager.getPathSlimes(loc, x, y, z);
+        var slimes = ZiplineManager.getPathSlimes(loc, x, y, z);
         var compB = new ComponentBuilder();
         var text = "";
 
@@ -136,7 +136,7 @@ public class DebugStickItem implements IItemBase {
                 compB.append(String.format("  # %d: x: %.3f, y: %.3f,z: %.3f, Exist?: %b \n", pathes.indexOf(path),
                         path.getX(),
                         path.getY(),
-                        path.getZ(), ZipLineManager.verifyPath(slime)));
+                        path.getZ(), ZiplineManager.verifyPath(slime)));
             }
 
             // 現在の向きで選択される経路

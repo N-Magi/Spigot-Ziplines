@@ -55,7 +55,7 @@ public class PlayerZippingManager implements Listener {
                     if (res.isfinished) {
                         if (DEBUG)
                             _plugin.getLogger().info("call zipline finish Process");
-                        var nextloc = culculateNextPath(ZipLineManager.getPathSlime(res.dst),
+                        var nextloc = culculateNextPath(ZiplineManager.getPathSlime(res.dst),
                                 mp.oldlocs, player);
 
                         if (nextloc == null) {
@@ -191,7 +191,7 @@ public class PlayerZippingManager implements Listener {
             if (DEBUG)
                 _plugin.getLogger().info("RopeClicked Hitch");
 
-            var pathSlime = ZipLineManager.getPathSlime(entity.getLocation());
+            var pathSlime = ZiplineManager.getPathSlime(entity.getLocation());
             if (pathSlime == null)
                 return;
             playerStartZipping(e.getPlayer(), pathSlime);
@@ -254,7 +254,7 @@ public class PlayerZippingManager implements Listener {
                 return locs;
             }
             var nextloc = nextLocs.get(0);
-            var nextSlime = ZipLineManager.getPathSlime(nextloc);
+            var nextSlime = ZiplineManager.getPathSlime(nextloc);
             if (nextSlime == null)
                 return locs;
             locs = culculateFullPath(nextSlime, locs);
@@ -267,7 +267,7 @@ public class PlayerZippingManager implements Listener {
 
         if (DataManager.hasData(ropeEdge)) {
             // ZipLineManager.validatePathes(ropeEdge);
-            ZipLineManager.slimeSet(ropeEdge);
+            ZiplineManager.slimeSet(ropeEdge);
             List<Location> nextLocs = DataManager.getData(ropeEdge);
             var current = ropeEdge.getLocation();
             nextLocs.remove(ropeEdge.getLocation());

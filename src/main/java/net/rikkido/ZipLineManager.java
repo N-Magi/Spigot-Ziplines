@@ -44,12 +44,12 @@ public class ZipLineManager implements Listener {
                     var handItem = player.getInventory().getItemInMainHand();
                     if (handItem.getType() != Material.LEAD)
                         continue;
-                    if (!plugin.itemManager.isZiplineItem(handItem))
+                    if (!plugin.ziplimeitem.isItem(handItem))
                         continue;
-                    if (plugin.itemManager.isZiplineFlaged(handItem)) {
+                    if (plugin.ziplimeitem.isZiplineFlaged(handItem)) {
                         player.sendActionBar(Component
                                 .text(String.format("距離 %.1fブロック 開始地点を再度選択でキャンセル",
-                                        plugin.itemManager.getZiplineFlag(handItem).distance(player.getLocation())))
+                                        plugin.ziplimeitem.getZiplineFlag(handItem).distance(player.getLocation())))
                                 .color(TextColor.color(255, 255, 0)));
                         continue;
                     }
@@ -195,7 +195,7 @@ public class ZipLineManager implements Listener {
         }
         pathslime.remove();
 
-        _plugin.itemManager.dropZipline(fenceLoc, paths.size());
+        _plugin.ziplimeitem.dropItem(fenceLoc, paths.size());
         chunk.unload();
     }
 
@@ -313,7 +313,7 @@ public class ZipLineManager implements Listener {
         var items = player.getInventory().getItemInMainHand();
         if (items.getType() != Material.LEAD)
             return;
-        if (!_plugin.itemManager.isZiplineItem(items)) {
+        if (!_plugin.ziplimeitem.isItem(items)) {
             player.sendMessage("バージョンアップによりレシピが変更されました。\nクラフトテーブルで、リードを鉄インゴットで挟み込むとアイテムが作成できます");
             return;
         }
@@ -322,21 +322,21 @@ public class ZipLineManager implements Listener {
         var dst_loc = clicked_block.getLocation().add(0.5, 0.25, 0.5);
 
         // 座標データを格納
-        if (!_plugin.itemManager.isZiplineFlaged(items)) {
-            _plugin.itemManager.setZiplineFlag(items, dst_loc);
+        if (!_plugin.ziplimeitem.isZiplineFlaged(items)) {
+            _plugin.ziplimeitem.setZiplineFlag(items, dst_loc);
             if (DEBUG)
                 _plugin.getLogger().info("container wrote");
 
             return;
         }
-        var src_loc = _plugin.itemManager.getZiplineFlag(items);
+        var src_loc = _plugin.ziplimeitem.getZiplineFlag(items);
         if (DEBUG)
             _plugin.getLogger().info("container readed");
 
         var diff = src_loc.toVector().subtract(dst_loc.toVector());
         // 同じ場所でのラインは取り消し
         if (src_loc.equals(dst_loc)) {
-            _plugin.itemManager.removeZiplineFlag(items);
+            _plugin.ziplimeitem.removeZiplineFlag(items);
             return;
         }
 
@@ -347,7 +347,7 @@ public class ZipLineManager implements Listener {
 
         if (Material.OAK_FENCE != world.getBlockAt(src_loc).getType()) {
             player.sendMessage("開始地点で何かが起きたようです 接続を削除します。");
-            _plugin.itemManager.removeZiplineFlag(items);
+            _plugin.ziplimeitem.removeZiplineFlag(items);
             return;
         }
 
@@ -355,7 +355,7 @@ public class ZipLineManager implements Listener {
         if (path != null)
             if (DataManager.getData(path).contains(dst_loc)) {
                 player.sendMessage("二度付け禁止ダメ絶対, 経路消しとくよ");
-                _plugin.itemManager.removeZiplineFlag(items);
+                _plugin.ziplimeitem.removeZiplineFlag(items);
                 return;
             }
 
@@ -363,7 +363,7 @@ public class ZipLineManager implements Listener {
         spawnHitches(slimes);
 
         // リードを消費
-        _plugin.itemManager.consumptionZipline(items);
+        _plugin.ziplimeitem.setAmount(items, items.getAmount() - 1);
 
     }
 

@@ -127,7 +127,7 @@ public class PlayerZippingManager implements Listener {
         var loc = player.getLocation();
         var dst_item = mplayer;
 
-        //異なるワールドでの移動について中止
+        // 異なるワールドでの移動について中止
         if (!loc.getWorld().equals(dst_item.dst.getWorld())) {
             mplayer.isfinished = true;
             return mplayer;
@@ -182,7 +182,7 @@ public class PlayerZippingManager implements Listener {
         if (!e.getHand().equals(EquipmentSlot.HAND))
             return;
 
-        if (_plugin.itemManager.isDebugStickItem(e.getPlayer().getInventory().getItemInMainHand()))
+        if (!_plugin.ziplimeitem.isItem(e.getPlayer().getInventory().getItemInMainHand()))
             return;
 
         var entity = e.getRightClicked();

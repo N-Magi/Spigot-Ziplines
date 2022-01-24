@@ -3,8 +3,6 @@ package net.rikkido;
 import java.util.List;
 import java.util.UUID;
 
-import javax.swing.text.html.parser.Entity;
-
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -23,8 +21,8 @@ public class App extends JavaPlugin implements Listener, CommandExecutor {
     public ZipLineManager ziplineManager;
     public PlayerZippingManager zippingManager;
     public ZipLineVisualizeManager visualManger;
-    public ItemManager itemManager;
-    public Debugger debugger;
+    public ZiplineItem ziplimeitem;
+    public DebugStickItem debugitem;
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
@@ -35,7 +33,7 @@ public class App extends JavaPlugin implements Listener, CommandExecutor {
             return false;
         if (arg.equals("DEBUG")) {
             var p = (Player) sender;
-            itemManager.dropDebugStick(p.getLocation(), 1);
+            debugitem.dropItem(p.getLocation(), 1);
         }
 
         if (arg.equals(("delete"))) {
@@ -68,13 +66,13 @@ public class App extends JavaPlugin implements Listener, CommandExecutor {
         ziplineManager = new ZipLineManager(this);
         zippingManager = new PlayerZippingManager(this);
         visualManger = new ZipLineVisualizeManager(this);
-        itemManager = new ItemManager(this);
-        debugger = new Debugger(this);
+        ziplimeitem = new ZiplineItem(this);
+        debugitem = new DebugStickItem(this);
 
         Bukkit.getPluginManager().registerEvents(ziplineManager, this);
         Bukkit.getPluginManager().registerEvents(zippingManager, this);
         Bukkit.getPluginManager().registerEvents(visualManger, this);
-        Bukkit.getPluginManager().registerEvents(debugger, this);
+        Bukkit.getPluginManager().registerEvents(debugitem, this);
         DataManager.setValues(this);
 
     }

@@ -55,12 +55,14 @@ public class ZiplineItem implements IItemBase {
         world.dropItemNaturally(loc, dropItem);
     }
 
-    public void setAmount(ItemStack zipline,int amount) {
+    public void setAmount(ItemStack zipline, int amount) {
         removeZiplineFlag(zipline);
         zipline.setAmount(amount);
     }
 
     public boolean isItem(ItemStack zipline) {
+        if (zipline.getItemMeta() == null)
+            return false;
         return zipline.getItemMeta().getPersistentDataContainer().has(ITEM_ZIPLINE, PersistentDataType.INTEGER);
     }
 

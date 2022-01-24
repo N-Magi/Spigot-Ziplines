@@ -82,7 +82,7 @@ public class PlayerZippingManager implements Listener {
                 }
 
             }
-        }.runTaskTimer(_plugin, 0, 2);
+        }.runTaskTimer(_plugin, 0, 1);
     }
 
     // 移動開始
@@ -97,12 +97,14 @@ public class PlayerZippingManager implements Listener {
 
         var mp = new MovePlayer();
         mp.player = p.getUniqueId();
-        mp.dst = loc;// ここ要注意（マルチパス対応の時にひっかかかる）
-        mp.src = e.getLocation();// ここ
+        // mp.dst = loc;// ここ要注意（マルチパス対応の時にひっかかかる）
+        // mp.src = e.getLocation();// ここ
+        mp.dst = e.getLocation();
+        mp.src = p.getLocation();
 
         mp.oldlocs = oldLocs;
-        mp.oldlocs.add(e.getLocation());
-        mp.oldlocs.add(loc);
+        mp.oldlocs.add(mp.dst);
+        mp.oldlocs.add(mp.src);
 
         // mp.nxt = loc; // path情報書き込み
 
@@ -120,8 +122,8 @@ public class PlayerZippingManager implements Listener {
     // 移動中
     public MovePlayer playerZipping(MovePlayer mplayer) {
 
-        var speed = 1.0f;// 1 block per 2 tick
-        var finishRadius = 2.0f;
+        var speed = 0.5f;// 1 block per 2 tick
+        var finishRadius = 1.5f;
 
         var player = Bukkit.getPlayer(mplayer.player);
         var loc = player.getLocation();
@@ -182,7 +184,7 @@ public class PlayerZippingManager implements Listener {
         if (!e.getHand().equals(EquipmentSlot.HAND))
             return;
 
-        if (!_plugin.ziplimeitem.isItem(e.getPlayer().getInventory().getItemInMainHand()))
+        if (_plugin.debugitem.isItem(e.getPlayer().getInventory().getItemInMainHand()))
             return;
 
         var entity = e.getRightClicked();
@@ -235,32 +237,6 @@ public class PlayerZippingManager implements Listener {
         if (!DataManager.hasData((Slime) entity))
             return;
         e.setCancelled(true);
-    }
-
-    // pathを計算
-    public static List<Location> culculateFullPath(Slime nextSlime2, List<Location> locs) {
-        // var world = nextSlime2.getWorld();
-        var loc = nextSlime2.getLocation();
-        if (DataManager.hasData(nextSlime2)) {
-            List<Location> nextLocs = DataManager.getData(nextSlime2);
-
-            nextLocs.remove(nextSlime2.getLocation());
-            var copylocs = locs;
-            nextLocs = nextLocs.stream().filter(f -> !copylocs.contains(f)).toList();
-
-            locs.add(loc);
-
-            if (nextLocs.size() < 1) {
-                return locs;
-            }
-            var nextloc = nextLocs.get(0);
-            var nextSlime = ZiplineManager.getPathSlime(nextloc);
-            if (nextSlime == null)
-                return locs;
-            locs = culculateFullPath(nextSlime, locs);
-            return locs;
-        }
-        throw new NullPointerException("Path Slime PersistentDataContainerにデータが挿入されていません。");
     }
 
     public Location culculateNextPath(Slime ropeEdge, List<Location> oldlocs, Player player) {
@@ -318,4 +294,33 @@ public class PlayerZippingManager implements Listener {
         }
         throw new NullPointerException("Path Slime PersistentDataContainerにデータが挿入されていません。");
     }
+
+    // // pathを計算
+    // public static List<Location> culculateFullPath(Slime nextSlime2,
+    // List<Location> locs) {
+    // // var world = nextSlime2.getWorld();
+    // var loc = nextSlime2.getLocation();
+    // if (DataManager.hasData(nextSlime2)) {
+    // List<Location> nextLocs = DataManager.getData(nextSlime2);
+
+    // nextLocs.remove(nextSlime2.getLocation());
+    // var copylocs = locs;
+    // nextLocs = nextLocs.stream().filter(f -> !copylocs.contains(f)).toList();
+
+    // locs.add(loc);
+
+    // if (nextLocs.size() < 1) {
+    // return locs;
+    // }
+    // var nextloc = nextLocs.get(0);
+    // var nextSlime = ZiplineManager.getPathSlime(nextloc);
+    // if (nextSlime == null)
+    // return locs;
+    // locs = culculateFullPath(nextSlime, locs);
+    // return locs;
+    // }
+    // throw new NullPointerException("Path Slime
+    // PersistentDataContainerにデータが挿入されていません。");
+    // }
+
 }

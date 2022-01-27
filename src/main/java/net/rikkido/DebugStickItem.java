@@ -136,7 +136,8 @@ public class DebugStickItem implements IItemBase {
                 compB.append(String.format("  # %d: x: %.3f, y: %.3f,z: %.3f, Exist?: %b \n", pathes.indexOf(path),
                         path.getX(),
                         path.getY(),
-                        path.getZ(), ZiplineManager.verifyPath(slime)));
+                        path.getZ(), 
+                        _plugin.ziplineManager.verifyPath(slime)));
             }
 
             // 現在の向きで選択される経路

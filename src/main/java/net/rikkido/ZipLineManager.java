@@ -95,10 +95,14 @@ public class ZiplineManager implements Listener {
 
     }
 
-    public static Slime getPathSlime(Location loc) {
+    public Slime getPathSlime(Location loc) {
         var path_slime = getPathSlimes(loc, 0.5f, 0.5f, 0.5f);
-        if (path_slime.size() < 1)
+        if (path_slime.size() < 1) {
+            _plugin.getServer().getLogger().warning(
+                    String.format("Can't find Silime at %.3f, %.3f, %.3f", loc.getX(), loc.getY(), loc.getZ()));
             return null;
+        }
+
         var slime = (Slime) mergePathSlime(path_slime);
         return slime;
     }
@@ -114,7 +118,7 @@ public class ZiplineManager implements Listener {
         return path_slime;
     }
 
-    public static boolean verifyPath(Slime slime) {
+    public boolean verifyPath(Slime slime) {
         var pathes = DataManager.getData(slime);
         var clone = pathes;
         var loc = slime.getLocation();
@@ -136,7 +140,7 @@ public class ZiplineManager implements Listener {
 
     }
 
-    public static void validatePathes(Slime slime) {
+    public void validatePathes(Slime slime) {
         var pathes = DataManager.getData(slime);
         var clone = pathes;
         var loc = slime.getLocation();

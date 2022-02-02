@@ -24,13 +24,13 @@ import net.md_5.bungee.api.chat.TextComponent;
 
 public class DebugStickItem implements IItemBase {
 
-    private App _plugin;
+    private Zipline _plugin;
 
     private ItemStack debugStick;
 
     public static NamespacedKey DEBUG;
 
-    public DebugStickItem(App plugin) {
+    public DebugStickItem(Zipline plugin) {
         DEBUG = new NamespacedKey(plugin, "debug");
         _plugin = plugin;
 

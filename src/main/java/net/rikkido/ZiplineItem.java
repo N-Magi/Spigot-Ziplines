@@ -12,14 +12,14 @@ import org.bukkit.persistence.PersistentDataType;
 import net.md_5.bungee.api.ChatColor;
 
 public class ZiplineItem implements IItemBase {
-    App _plugin;
+    Zipline _plugin;
 
     public ItemStack zipline;
     public ItemStack debugStick;
 
     public static NamespacedKey ITEM_ZIPLINE;
 
-    public ZiplineItem(App plugin) {
+    public ZiplineItem(Zipline plugin) {
         _plugin = plugin;
         ITEM_ZIPLINE = new NamespacedKey(plugin, "itemzipline");
 

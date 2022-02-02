@@ -9,12 +9,12 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 public class ZiplineVisualizeManager implements Listener {
 
-    App _plugin;
+    Zipline _plugin;
     double particlePerBlock = 1.0;
     int stage = 0;
     static Double STAGEMAX = 20.0;
 
-    public ZiplineVisualizeManager(App plugin) {
+    public ZiplineVisualizeManager(Zipline plugin) {
         _plugin = plugin;
         new BukkitRunnable() {
             @Override

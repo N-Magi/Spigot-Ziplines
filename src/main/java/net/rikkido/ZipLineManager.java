@@ -3,6 +3,8 @@ package net.rikkido;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.xml.crypto.dsig.keyinfo.RetrievalMethod;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
@@ -19,10 +21,12 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.PlayerLeashEntityEvent;
+import org.bukkit.event.hanging.HangingBreakByEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.checkerframework.common.util.report.qual.ReportUnqualified;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
@@ -30,10 +34,10 @@ import net.kyori.adventure.text.format.TextColor;
 public class ZiplineManager implements Listener {
 
     private static boolean DEBUG = false;
-    private App _plugin;
+    private Zipline _plugin;
     static String CUSTOM_NAME = "Rope";
 
-    public ZiplineManager(App plugin) {
+    public ZiplineManager(Zipline plugin) {
         _plugin = plugin;
 
         new BukkitRunnable() {
@@ -140,25 +144,6 @@ public class ZiplineManager implements Listener {
 
     }
 
-    public void validatePathes(Slime slime) {
-        var pathes = DataManager.getData(slime);
-        var clone = pathes;
-        var loc = slime.getLocation();
-        for (var path : clone) {
-            var dSlime = getPathSlime(path);
-            if (dSlime == null) {
-                pathes.remove(path);
-                continue;
-            }
-            var result = DataManager.getData(dSlime).stream().filter(f -> f == loc).toList();
-            if (result.size() < 1) {
-                pathes.remove(path);
-                continue;
-            }
-        }
-        DataManager.setData(slime, pathes);
-    }
-
     // path破壊処理
     @EventHandler
     public void onBlockBreak(BlockBreakEvent e) {
@@ -173,10 +158,16 @@ public class ZiplineManager implements Listener {
             e.getPlayer().sendMessage("チャンクがロードされていません　破壊に失敗しました");
             e.setCancelled(true);
         }
-
         var pathslime = getPathSlime(fenceLoc);
+        var itemAmount = rmPath(pathslime);
+
+        _plugin.ziplimeitem.dropItem(fenceLoc, itemAmount);
+        chunk.unload();
+    }
+
+    public int rmPath(Slime pathslime) {
         if (pathslime == null)
-            return;
+            return 0;
         List<Location> paths = DataManager.getData(pathslime);
         if (DEBUG)
             _plugin.getLogger().info("path list size: " + paths.size());
@@ -198,13 +189,7 @@ public class ZiplineManager implements Listener {
             }
         }
         pathslime.remove();
-
-        _plugin.ziplimeitem.dropItem(fenceLoc, paths.size());
-        chunk.unload();
-    }
-
-    public void rmPath(Location loc, List<Location> pathes) {
-
+        return paths.size();
     }
 
     @EventHandler
@@ -215,7 +200,6 @@ public class ZiplineManager implements Listener {
         if (item.getType() != Material.LEAD)
             return;
         var meta = item.getItemMeta();
-
         item.setItemMeta(meta);
     }
 
@@ -230,7 +214,7 @@ public class ZiplineManager implements Listener {
         e.setCancelled(true);
     }
 
-    public static void slimeSet(Slime slime) {
+    private static void slimeSet(Slime slime) {
         slime.setCustomName(CUSTOM_NAME);
         slime.setAI(false);
         slime.setRemoveWhenFarAway(false);
@@ -313,6 +297,18 @@ public class ZiplineManager implements Listener {
         setUpZiplines(clicked_block, player);
     }
 
+    @EventHandler
+    public void onHangingBreakByEntity(HangingBreakByEntityEvent e) {
+        var entity = e.getEntity();
+        if (entity.getType() != EntityType.LEASH_HITCH)
+            return;
+        if (entity.getCustomName() == null)
+            return;
+        if (!DataManager.hasData((Slime) entity))
+            return;
+        e.setCancelled(true);
+    }
+
     public void setUpZiplines(Block clicked_block, Player player) {
         var items = player.getInventory().getItemInMainHand();
         if (items.getType() != Material.LEAD)
@@ -368,7 +364,6 @@ public class ZiplineManager implements Listener {
 
         // リードを消費
         _plugin.ziplimeitem.setAmount(items, items.getAmount() - 1);
-
     }
 
 }

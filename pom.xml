@@ -22,7 +22,7 @@
     <repository>
       <id>GitHub</id>
       <name>Zipline-GitHub</name>
-      <url>https://github.com/N-Magi/Spigot-Ziplines</url>
+      <url>https://maven.pkg.github.com/N-Magi/Spigot-Ziplines</url>
     </repository>
 </distributionManagement>
 

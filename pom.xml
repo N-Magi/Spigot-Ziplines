@@ -20,7 +20,7 @@
 
   <distributionManagement>
     <repository>
-      <id>GitHub</id>
+      <id>github</id>
       <name>Zipline-GitHub</name>
       <url>https://maven.pkg.github.com/N-Magi/Spigot-Ziplines</url>
     </repository>

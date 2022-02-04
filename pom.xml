@@ -18,6 +18,14 @@
     <maven.compiler.target>17</maven.compiler.target>
   </properties>
 
+  <distributionManagement>
+    <repository>
+      <id>GitHub</id>
+      <name>Zipline-GitHub</name>
+      <url>https://github.com/N-Magi/Spigot-Ziplines</url>
+    </repository>
+</distributionManagement>
+
   <repositories>
     <repository>
         <id>spigot-repo</id>

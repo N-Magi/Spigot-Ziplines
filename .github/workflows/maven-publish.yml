@@ -4,12 +4,12 @@
 name: Maven Package
 
 on:
-  release:
-    types: [created]
+  push:
+    tags:
+     - '*'
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -32,3 +32,12 @@ jobs:
       with:
         name: Package
         path: staging
+    - name: Create Release
+      uses: actions/upload-release-asset@v1.0.2
+      env: 
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./taget/*.jar
+        asset_content_type: application/jar
+        

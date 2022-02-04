@@ -48,7 +48,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.get_release.outputs.upload_url }}
-        asset_path: ./target/*.jar
+        asset_path: ./target/ziplines-1.0-SNAPSHOT.jar
         asset_name: Zipline.zip
         asset_content_type: application/jar
         

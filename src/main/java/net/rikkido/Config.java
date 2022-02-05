@@ -11,7 +11,8 @@ public class Config<type> {
         value = Value;
     }
 
-    public void setValue(Object value) {
-        value = (type) value;
+    public void load(FileConfiguration config){
+        
     }
+
 }

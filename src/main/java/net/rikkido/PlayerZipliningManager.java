@@ -130,7 +130,7 @@ public class PlayerZipliningManager implements Listener {
     // 移動中
     public MovePlayer playerZiplining(MovePlayer mplayer) {
 
-        double speed = _plugin.config.speed;// 1 block per 2 tick
+        double speed = _plugin.config.Speed.value;// 1 block per 2 tick
         var finishRadius = 1.25f;
 
         var player = Bukkit.getPlayer(mplayer.player);

@@ -49,6 +49,8 @@ public class ZiplineItem implements IItemBase {
     }
 
     public void dropItem(Location loc, int amount) {
+        if (amount <= 0)
+            return;
         var world = loc.getWorld();
         var dropItem = zipline.clone();
         dropItem.setAmount(amount);

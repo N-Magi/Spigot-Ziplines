@@ -29,8 +29,15 @@ public class PlayerZipliningManager implements Listener {
     Boolean DEBUG = false;
     private Zipline _plugin;
 
+    private Double SPEED;
+    private Double FINISH_RADIDUS;
+
     public PlayerZipliningManager(Zipline plugin) {
         _plugin = plugin;
+
+        SPEED = _plugin.config.Speed.value;
+        FINISH_RADIDUS = _plugin.config.ZipliningFinishRadius.value;
+
         new BukkitRunnable() {
             @Override
             public void run() {
@@ -53,6 +60,7 @@ public class PlayerZipliningManager implements Listener {
                             .text(String.format("`shit`キーで途中下車"))
                             .color(TextColor.color(255, 255, 0)));
 
+                    // 終了時処理
                     if (res.isfinished) {
                         if (DEBUG)
                             _plugin.getLogger().info("call zipline finish Process");
@@ -61,13 +69,13 @@ public class PlayerZipliningManager implements Listener {
                             stopPlayerZipping(player);
                             continue;
                         }
-
                         var nextloc = culculateNextPath(slime, mp.oldlocs, player);
-
                         if (nextloc == null) {
                             stopPlayerZipping(player);
                             continue;
                         }
+                        // 継続処理(次点移動)
+                        player.setVelocity(new Vector(0, 0, 0));
                         res.src = res.dst;
                         res.dst = nextloc;
 
@@ -130,8 +138,8 @@ public class PlayerZipliningManager implements Listener {
     // 移動中
     public MovePlayer playerZiplining(MovePlayer mplayer) {
 
-        double speed = _plugin.config.Speed.value;// 1 block per 2 tick
-        var finishRadius = 1.25f;
+        double speed = SPEED;// 1 block per 2 tick
+        var finishRadius = FINISH_RADIDUS;
 
         var player = Bukkit.getPlayer(mplayer.player);
         var loc = player.getLocation();

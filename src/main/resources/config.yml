@@ -1,2 +1,5 @@
-speed: 1.0
-zipline_max_radius: -1.0
+zipline:
+  speed: 1.0
+  max_radius: -1.0
+ziplining:
+  finizh_raduis: 0.5

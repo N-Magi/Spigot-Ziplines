@@ -80,6 +80,8 @@ public class DebugStickItem implements IItemBase {
     }
 
     public void dropItem(Location loc, int amount) {
+        if (amount <= 0)
+            return;
         var world = loc.getWorld();
         var dropItem = debugStick.clone();
         dropItem.setAmount(amount);
@@ -136,7 +138,7 @@ public class DebugStickItem implements IItemBase {
                 compB.append(String.format("  # %d: x: %.3f, y: %.3f,z: %.3f, Exist?: %b \n", pathes.indexOf(path),
                         path.getX(),
                         path.getY(),
-                        path.getZ(), 
+                        path.getZ(),
                         _plugin.ziplineManager.verifyPath(slime)));
             }
 

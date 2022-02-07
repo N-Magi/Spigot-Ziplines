@@ -2,14 +2,18 @@ package net.rikkido;
 
 import org.bukkit.configuration.file.FileConfiguration;
 
+import net.rikkido.config.Config;
+import net.rikkido.config.ItemConfig;
+import net.rikkido.config.ZiplineConfig;
+import net.rikkido.config.ZipliningConfig;
+
 public class ConfigManager {
 
     private Zipline _plugin;
 
-    public Config<Double> Speed = new Config<Double>("zipline.speed", 1.0);// block per tick
-    public Config<Double> MaxRadiusZipline = new Config<Double>("zipline.max_radius", -1.0);// negative value means
-                                                                                            // infinity
-    public Config<Double> ZipliningFinishRadius = new Config<Double>("ziplining.finizh_raduis", 0.5);
+    ZiplineConfig ziplineConfig = new ZiplineConfig();
+    ZipliningConfig zipliningConfig = new ZipliningConfig();
+    ItemConfig itemConfig = new ItemConfig();
 
     public ConfigManager(Zipline plugin) {
         _plugin = plugin;
@@ -19,8 +23,11 @@ public class ConfigManager {
     }
 
     private void loadConfig(FileConfiguration config) {
-        Speed.value = config.getDouble(Speed.configName);
-        MaxRadiusZipline.value = config.getDouble(MaxRadiusZipline.configName);
-        ZipliningFinishRadius.value = config.getDouble(ZipliningFinishRadius.configName);
+        ziplineConfig.load(config);
+        zipliningConfig.load(config);
+        itemConfig.load(config);
+
+        _plugin.getLogger().info("size :" + itemConfig.ziplineItemconf.itemshapeConfig.value.size() + "shape :" + itemConfig.ziplineItemconf.itemshapeConfig.value);
+        _plugin.getLogger().info("size :" + itemConfig.ziplineItemconf.itemPair.value.size() + itemConfig.ziplineItemconf.itemPair.value.get(0).toString());
     }
 }

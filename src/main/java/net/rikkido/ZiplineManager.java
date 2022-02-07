@@ -35,11 +35,11 @@ public class ZiplineManager implements Listener {
     private Zipline _plugin;
     static String CUSTOM_NAME = "Rope";
 
-    private Double ZIPLINE_MAX_RADIUS;
+    private Double _ziplineMaxRadius;
 
     public ZiplineManager(Zipline plugin) {
         _plugin = plugin;
-        ZIPLINE_MAX_RADIUS = _plugin.config.MaxRadiusZipline.value;
+        _ziplineMaxRadius = _plugin.config.ziplineConfig.MaxRadius.value;
 
         new BukkitRunnable() {
             @Override
@@ -52,16 +52,16 @@ public class ZiplineManager implements Listener {
                     if (!plugin.ziplimeitem.isItem(handItem))
                         continue;
 
-                    if (ZIPLINE_MAX_RADIUS > 0)
+                    if (_ziplineMaxRadius > 0)
                         if (plugin.ziplimeitem.isZiplineFlaged(handItem)) {
                             var color = TextColor.color(255, 255, 0);
                             var distance = plugin.ziplimeitem.getZiplineFlag(handItem).distance(player.getLocation());
-                            if (distance > ZIPLINE_MAX_RADIUS)
+                            if (distance > _ziplineMaxRadius)
                                 color = TextColor.color(255, 0, 0);
                             player.sendActionBar(Component
                                     .text(String.format("距離 %.1f / %.1fブロック 開始地点を再度選択でキャンセル",
                                             distance,
-                                            ZIPLINE_MAX_RADIUS))
+                                            _ziplineMaxRadius))
                                     .color(color));
                             continue;
                         }
@@ -369,7 +369,7 @@ public class ZiplineManager implements Listener {
             return;
         }
 
-        var maxRadius = ZIPLINE_MAX_RADIUS;
+        var maxRadius = _ziplineMaxRadius;
         if (diff.length() >= maxRadius && maxRadius > 0) {
             player.sendMessage(String.format("%.3fブロック以上の距離のラインは設置できません", maxRadius));
             return;

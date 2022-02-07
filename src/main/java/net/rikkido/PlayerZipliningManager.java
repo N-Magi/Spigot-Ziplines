@@ -29,14 +29,14 @@ public class PlayerZipliningManager implements Listener {
     Boolean DEBUG = false;
     private Zipline _plugin;
 
-    private Double SPEED;
-    private Double FINISH_RADIDUS;
+    private Double _speed;
+    private Double _finish_Radius;
 
     public PlayerZipliningManager(Zipline plugin) {
         _plugin = plugin;
 
-        SPEED = _plugin.config.Speed.value;
-        FINISH_RADIDUS = _plugin.config.ZipliningFinishRadius.value;
+        _speed = _plugin.config.ziplineConfig.Speed.value;
+        _finish_Radius = _plugin.config.zipliningConfig.FinishRadius.value;
 
         new BukkitRunnable() {
             @Override
@@ -138,8 +138,8 @@ public class PlayerZipliningManager implements Listener {
     // 移動中
     public MovePlayer playerZiplining(MovePlayer mplayer) {
 
-        double speed = SPEED;// 1 block per 2 tick
-        var finishRadius = FINISH_RADIDUS;
+        double speed = _speed;// 1 block per 2 tick
+        var finishRadius = _finish_Radius;
 
         var player = Bukkit.getPlayer(mplayer.player);
         var loc = player.getLocation();

@@ -2,6 +2,7 @@ package net.rikkido;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -30,9 +31,16 @@ public class DebugStickItem implements IItemBase {
 
     public static NamespacedKey DEBUG;
 
+    private List<String> _recipeShape = new ArrayList<String>();
+    private List<Map<String, String>> _itemMaps = new ArrayList<Map<String, String>>();
+
+
     public DebugStickItem(Zipline plugin) {
         DEBUG = new NamespacedKey(plugin, "debug");
         _plugin = plugin;
+
+        _recipeShape = _plugin.config.itemConfig.debugStickItemConfig.itemshapeConfig.value;
+        _itemMaps = _plugin.config.itemConfig.debugStickItemConfig.itemPair.value;
 
         debugStick = createItem();
         var recc = createRecipe(debugStick);
@@ -73,9 +81,22 @@ public class DebugStickItem implements IItemBase {
 
     public ShapedRecipe createRecipe(ItemStack item) {
         ShapedRecipe recipeZipline = new ShapedRecipe(DEBUG, item);
-        recipeZipline.shape("D", "S");
-        recipeZipline.setIngredient('D', Material.DIAMOND);
-        recipeZipline.setIngredient('S', Material.STICK);
+        // recipeZipline.shape("D", "S");
+        // recipeZipline.setIngredient('D', Material.DIAMOND);
+        // recipeZipline.setIngredient('S', Material.STICK);
+
+        var strs = new String[_recipeShape.size()];
+        _recipeShape.toArray(strs);
+        recipeZipline.shape(strs);
+        _plugin.getLogger().info(strs[0]);
+        for (var map : _itemMaps) {
+            for(Map.Entry<String,String> e : map.entrySet()){
+                char c = e.getKey().toCharArray()[0];
+                recipeZipline.setIngredient(c, Material.getMaterial(e.getValue()));
+            }
+            
+        }
+
         return recipeZipline;
     }
 

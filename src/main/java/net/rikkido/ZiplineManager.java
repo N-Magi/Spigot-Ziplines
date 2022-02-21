@@ -187,14 +187,14 @@ public class ZiplineManager implements Listener {
         }
     }
 
-    // // 爆発による破壊
-    // @EventHandler
-    // public void onExplodedEvent(BlockExplodeEvent e) {
-    // var breakBlock = e.blockList();
-    // for (Block block : breakBlock) {
-    // destoryPath(block);
-    // }
-    // }
+    // 爆発による破壊
+    @EventHandler
+    public void onExplodedEvent(BlockExplodeEvent e) {
+        var breakBlock = e.blockList();
+        for (Block block : breakBlock) {
+            destoryPath(block.getLocation());
+        }
+    }
 
     // 燃え尽きた場合による破壊
     @EventHandler

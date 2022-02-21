@@ -4,8 +4,11 @@ import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.entity.Slime;
+import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.scheduler.BukkitRunnable;
+
+import net.ZiplineEnterPlayerRangeHandler;
 
 public class ZiplineVisualizeManager implements Listener {
 
@@ -26,15 +29,23 @@ public class ZiplineVisualizeManager implements Listener {
                     var silmes = ZiplineManager.getPathSlimes(a.getLocation(), 20f, 20f, 20f);
                     if (silmes.size() < 1)
                         continue;
-                    for (var slime : silmes) {
-                        var nextloc = DataManager.getData((Slime) slime);
-                        for (var next : nextloc) {
-                            spanwParticleLines(slime.getLocation(), next, stage);
-                        }
-                    }
+                    var event = new ZiplineEnterPlayerRangeHandler(a, silmes);
+                    _plugin.getServer().getPluginManager().callEvent(event);
                 }
             }
         }.runTaskTimer(plugin, 0, 2);
+    }
+
+    @EventHandler
+    public void onPlayerEnterRange(ZiplineEnterPlayerRangeHandler event) {
+        var slimes = event.getSlimes();
+        for (var slime : slimes) {
+            var s = (Slime) slime;
+            var nextloc = DataManager.getData((Slime) slime);
+            for (var next : nextloc) {
+                spanwParticleLines(slime.getLocation(), next, stage);
+            }
+        }
     }
 
     // Spawn Particle Lines between source and destination
@@ -55,7 +66,7 @@ public class ZiplineVisualizeManager implements Listener {
 
         Double blockPerProgress = count * progress;
 
-        for (var a = count * (progress - one); a <= blockPerProgress; a += 1/particlePerBlock) {
+        for (var a = count * (progress - one); a <= blockPerProgress; a += 1 / particlePerBlock) {
             var aa = vec.clone().multiply(a); // ax
             var particlePoint = destination.clone().add(aa); // + b
             world.spawnParticle(Particle.REDSTONE, particlePoint, 1, opt);

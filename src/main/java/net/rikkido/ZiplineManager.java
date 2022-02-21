@@ -27,6 +27,7 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import net.ZiplineEnterPlayerRangeHandler;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -122,8 +123,6 @@ public class ZiplineManager implements Listener {
     public Slime getPathSlime(Location loc) {
         var path_slime = getPathSlimes(loc, 0.5f, 0.5f, 0.5f);
         if (path_slime.size() < 1) {
-            _plugin.getServer().getLogger().warning(
-                    String.format("Can't find Silime at %.3f, %.3f, %.3f", loc.getX(), loc.getY(), loc.getZ()));
             return null;
         }
 
@@ -164,43 +163,57 @@ public class ZiplineManager implements Listener {
 
     }
 
+    // pathの構成が正しく構成されているかをチェック
+    @EventHandler
+    public void onPathEnterPlayerRange(ZiplineEnterPlayerRangeHandler e) {
+        for (var slime : e.getSlimes()) {
+            var slimeLoc = slime.getLocation();
+            var world = slime.getWorld();
+            var block = world.getBlockAt(slimeLoc);
+            if (block.getType() == Material.OAK_FENCE)
+                continue;
+            destoryPath(block.getLocation());
+        }
+    }
+
     // path破壊処理
     @EventHandler
     public void onPlayerBreakPathFence(BlockBreakEvent e) {
         var block = e.getBlock();
-        if (!destoryPath(block)) {
+        if (block.getType() != Material.OAK_FENCE)
+            return;
+        if (!destoryPath(block.getLocation())) {
             e.getPlayer().sendMessage("経路の削除に失敗しました。");
         }
     }
 
-    // 爆発による破壊
-    @EventHandler
-    public void onExplodedEvent(BlockExplodeEvent e) {
-        var breakBlock = e.blockList();
-        for (Block block : breakBlock) {
-            destoryPath(block);
-        }
-    }
+    // // 爆発による破壊
+    // @EventHandler
+    // public void onExplodedEvent(BlockExplodeEvent e) {
+    // var breakBlock = e.blockList();
+    // for (Block block : breakBlock) {
+    // destoryPath(block);
+    // }
+    // }
 
-    //燃え尽きた場合による破壊
+    // 燃え尽きた場合による破壊
     @EventHandler
     public void onBlockBruned(BlockBurnEvent e) {
         var block = e.getBlock();
-        destoryPath(block);
+        destoryPath(block.getLocation());
     }
 
-    public boolean destoryPath(Block block) {
-        if (block.getType() != Material.OAK_FENCE)
-            return false;
-        var fenceLoc = block.getLocation();
+    public boolean destoryPath(Location location) {
+
+        var fenceLoc = location;
 
         var chunk = ensureChunk(fenceLoc);
 
         if (!chunk.isLoaded())
             return false;
 
-        if (getPathSlimes(fenceLoc, 0.5f, 0.5f, 0.5f).size() < 1)
-            return false;
+        if (getPathSlimes(fenceLoc, 0.3f, 0.5f, 0.3f).size() < 1)
+            return true;
         var pathslime = getPathSlime(fenceLoc);
         var itemAmount = rmPath(pathslime);
 

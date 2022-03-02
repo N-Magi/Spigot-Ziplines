@@ -204,7 +204,7 @@ public class PlayerZipliningManager implements Listener {
         var entity = e.getRightClicked();
         if (entity.getType() == EntityType.LEASH_HITCH) {
             e.setCancelled(true);
-            if (DEBUG)
+            if (true)
                 _plugin.getLogger().info("RopeClicked Hitch");
 
             var pathStand = _plugin.ziplineManager.getPathStand(entity.getLocation());
@@ -214,7 +214,7 @@ public class PlayerZipliningManager implements Listener {
 
         }
         if (entity.getType() == EntityType.ARMOR_STAND) {
-            if (DEBUG)
+            if (true)
                 _plugin.getLogger().info("RopeClicked Slime");
             if (entity.getCustomName() == null)
                 return;

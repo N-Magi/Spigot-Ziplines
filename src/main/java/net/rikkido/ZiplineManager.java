@@ -135,7 +135,7 @@ public class ZiplineManager implements Listener {
         var cloc = loc.clone();
         cloc.add(0.5, 0.25, 0.5);
         var entities = cloc.getWorld().getNearbyEntities(cloc, x, y, z);
-        var path_slime = entities.stream()
+        var path_slime = entities.stream().filter(s -> s.getType() == EntityType.ARMOR_STAND)
                 .filter(s -> DataManager.hasData((ArmorStand) s)).toList();
         chunk.unload();
         return path_slime;
@@ -277,21 +277,10 @@ public class ZiplineManager implements Listener {
         stand.setRemoveWhenFarAway(false);
         stand.setInvulnerable(true);
         stand.setSilent(true);
-        //stand.setSize(1);
+        // stand.setSize(1);
         stand.setGravity(false);
         stand.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY,
                 Integer.MAX_VALUE, 1, false, false));
-    }
-
-    private Object[] spawnHitches(ArmorStand[] stands) {
-        var res = new ArrayList<LeashHitch>();
-        // どうせ消えるなら柵と同じ場所に生成させるようにする
-        for (ArmorStand stand : stands) {
-            var hitch = spawnHitch(stand);
-            res.add(hitch);
-            stand.setLeashHolder(hitch);
-        }
-        return res.toArray();
     }
 
     public LeashHitch spawnHitch(ArmorStand slime) {
@@ -306,29 +295,6 @@ public class ZiplineManager implements Listener {
 
     }
 
-    private ArmorStand[] spawnSlimes(Location spawnLocation, Location destLocation) {
-
-        var src = spawnStand(spawnLocation);
-        var dst = spawnStand(destLocation);
-
-        List<Location> src_data = new ArrayList<Location>();
-        if (DataManager.hasData(src))
-            src_data = DataManager.getData(src);
-        if (!src_data.contains(destLocation))
-            src_data.add(destLocation);
-        DataManager.setData(src, src_data);
-
-        List<Location> dst_data = new ArrayList<Location>();
-        if (DataManager.hasData(dst))
-            dst_data = DataManager.getData(dst);
-        if (!dst_data.contains(spawnLocation))
-            dst_data.add(spawnLocation);
-        DataManager.setData(dst, dst_data);
-
-        ArmorStand[] res = { src, dst };
-        return res;
-    }
-
     public ArmorStand spawnStand(Location spawnLoc) {
         var chunk = ensureChunk(spawnLoc);
         var stand = getPathStand(spawnLoc);
@@ -341,20 +307,6 @@ public class ZiplineManager implements Listener {
     }
 
     @EventHandler
-    public void onInteractByZiplineItem(PlayerInteractEvent event) {
-        if (event.getAction() != Action.RIGHT_CLICK_BLOCK)
-            return;
-        var clicked_block = event.getClickedBlock();
-        if (clicked_block.getType() != Material.OAK_FENCE)
-            return;
-        var player = event.getPlayer();
-        var items = player.getInventory().getItemInMainHand();
-        if (items.getType() != Material.LEAD)
-            return;
-        setUpZiplines(clicked_block, player);
-    }
-
-    @EventHandler
     public void onPathSlimeUnleash(HangingBreakByEntityEvent e) {
         var entity = e.getEntity();
         if (entity.getType() != EntityType.LEASH_HITCH)
@@ -364,72 +316,6 @@ public class ZiplineManager implements Listener {
         if (!DataManager.hasData((ArmorStand) entity))
             return;
         e.setCancelled(true);
-    }
-
-    public void setUpZiplines(Block clicked_block, Player player) {
-        var items = player.getInventory().getItemInMainHand();
-        if (items.getType() != Material.LEAD)
-            return;
-        if (!_plugin.ziplimeitem.isItem(items)) {
-            player.sendMessage("バージョンアップによりレシピが変更されました。\nクラフトテーブルで、リードを鉄インゴットで挟み込むとアイテムが作成できます");
-            return;
-        }
-
-        var world = player.getWorld();
-        var dst_loc = clicked_block.getLocation().add(0.5, 0.25, 0.5);
-
-        // 一回目
-        // 座標データを格納
-        if (!_plugin.ziplimeitem.isZiplineFlaged(items)) {
-            _plugin.ziplimeitem.setZiplineFlag(items, dst_loc);
-            if (DEBUG)
-                _plugin.getLogger().info("container wrote");
-
-            return;
-        }
-
-        // 二回目以降
-        var src_loc = _plugin.ziplimeitem.getZiplineFlag(items);
-        if (DEBUG)
-            _plugin.getLogger().info("container readed");
-
-        var diff = src_loc.toVector().subtract(dst_loc.toVector());
-        // 同じ場所でのラインは取り消し
-        if (src_loc.equals(dst_loc)) {
-            _plugin.ziplimeitem.removeZiplineFlag(items);
-            return;
-        }
-
-        if (diff.length() <= 3.0f) {
-            player.sendMessage("近距離での接続はできません。");
-            return;
-        }
-
-        var maxRadius = _ziplineMaxRadius;
-        if (diff.length() >= maxRadius && maxRadius > 0) {
-            player.sendMessage(String.format("%.3fブロック以上の距離のラインは設置できません", maxRadius));
-            return;
-        }
-
-        if (Material.OAK_FENCE != world.getBlockAt(src_loc).getType()) {
-            player.sendMessage("開始地点で何かが起きたようです 接続を削除します。");
-            _plugin.ziplimeitem.removeZiplineFlag(items);
-            return;
-        }
-
-        var path = getPathStand(src_loc);
-        if (path != null)
-            if (DataManager.getData(path).contains(dst_loc)) {
-                player.sendMessage("二度付け禁止ダメ絶対, 経路消しとくよ");
-                _plugin.ziplimeitem.removeZiplineFlag(items);
-                return;
-            }
-
-        var slimes = spawnSlimes(src_loc, dst_loc);
-        spawnHitches(slimes);
-
-        // リードを消費
-        _plugin.ziplimeitem.setAmount(items, items.getAmount() - 1);
     }
 
 }

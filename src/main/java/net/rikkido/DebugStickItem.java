@@ -8,6 +8,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Slime;
 import org.bukkit.event.EventHandler;
@@ -81,10 +82,6 @@ public class DebugStickItem implements IItemBase {
 
     public ShapedRecipe createRecipe(ItemStack item) {
         ShapedRecipe recipeZipline = new ShapedRecipe(DEBUG, item);
-        // recipeZipline.shape("D", "S");
-        // recipeZipline.setIngredient('D', Material.DIAMOND);
-        // recipeZipline.setIngredient('S', Material.STICK);
-
         var strs = new String[_recipeShape.size()];
         _recipeShape.toArray(strs);
         recipeZipline.shape(strs);
@@ -121,7 +118,7 @@ public class DebugStickItem implements IItemBase {
 
     public void showEntitys(Player player, Location loc, float x, float y, float z) {
         // 設定されている経路情報
-        var slimes = ZiplineManager.getPathSlimes(loc, x, y, z);
+        var stand = ZiplineManager.getPathSlimes(loc, x, y, z);
         var compB = new ComponentBuilder();
         var text = "";
 
@@ -132,18 +129,18 @@ public class DebugStickItem implements IItemBase {
             text += "=";
         text += String.format("ブロック: %.3f, %.3f, %.3f @ %.3f, %.3f, %.3f\n", loc.getX(), loc.getY(), loc.getZ(), x, y,
                 z);
-        text += String.format("付近のノード数: %d\n", slimes.size());
+        text += String.format("付近のノード数: %d\n", stand.size());
 
         compB.append(text);
         text = "";
 
-        for (var eslime : slimes) {
-            var slime = (Slime) eslime;
+        for (var eslime : stand) {
+            var slime = (ArmorStand) eslime;
             var pathes = DataManager.getData(slime);
 
             compB.append(String.format("%s#%d 選択: %.3f, %.3f, %.3f %s\n UUID: ",
                     ChatColor.GOLD,
-                    slimes.indexOf(eslime),
+                    stand.indexOf(eslime),
                     slime.getLocation().getX(),
                     slime.getLocation().getY(),
                     slime.getLocation().getZ(),

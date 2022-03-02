@@ -8,6 +8,7 @@ import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LeashHitch;
@@ -99,34 +100,34 @@ public class ZiplineManager implements Listener {
         return chunk;
     }
 
-    private static Entity mergePathSlime(List<Entity> slimes) {
+    private static Entity mergePathSlime(List<Entity> stands) {
 
-        if (slimes.size() <= 1)
-            return (Slime) slimes.get(0);
-        var mainSlime = slimes.get(0);
-        var data = DataManager.getData((Slime) mainSlime);
+        if (stands.size() <= 1)
+            return (Slime) stands.get(0);
+        var mainStand = stands.get(0);
+        var data = DataManager.getData((ArmorStand) mainStand);
         // slimes.remove(0);
-        for (int idx = 1; idx < slimes.size(); idx++) {
-            var slime = slimes.get(idx);
-            var sdata = DataManager.getData((Slime) slime);
+        for (int idx = 1; idx < stands.size(); idx++) {
+            var stand = stands.get(idx);
+            var sdata = DataManager.getData((ArmorStand) stand);
             for (var loc : sdata)
                 if (!data.contains(loc))
                     data.add(loc);
-            slime.remove();
+            stand.remove();
         }
-        DataManager.setData((Slime) mainSlime, data);
-        return mainSlime;
+        DataManager.setData((ArmorStand) mainStand, data);
+        return mainStand;
 
     }
 
-    public Slime getPathSlime(Location loc) {
+    public ArmorStand getPathStand(Location loc) {
         var path_slime = getPathSlimes(loc, 0.5f, 0.5f, 0.5f);
         if (path_slime.size() < 1) {
             return null;
         }
 
-        var slime = (Slime) mergePathSlime(path_slime);
-        return slime;
+        var stand = (ArmorStand) mergePathSlime(path_slime);
+        return stand;
     }
 
     public static List<Entity> getPathSlimes(Location loc, Float x, Float y, Float z) {
@@ -134,19 +135,19 @@ public class ZiplineManager implements Listener {
         var cloc = loc.clone();
         cloc.add(0.5, 0.25, 0.5);
         var entities = cloc.getWorld().getNearbyEntities(cloc, x, y, z);
-        var path_slime = entities.stream().filter(s -> s.getType().equals(EntityType.SLIME))
-                .filter(s -> DataManager.hasData((Slime) s)).toList();
+        var path_slime = entities.stream()
+                .filter(s -> DataManager.hasData((ArmorStand) s)).toList();
         chunk.unload();
         return path_slime;
     }
 
-    public boolean verifyPath(Slime slime) {
-        var pathes = DataManager.getData(slime);
+    public boolean verifyPath(ArmorStand stand) {
+        var pathes = DataManager.getData(stand);
         var clone = pathes;
-        var loc = slime.getLocation();
+        var loc = stand.getLocation();
         for (var path : clone) {
             var chunk = ensureChunk(path);
-            var dSlime = getPathSlime(path);
+            var dSlime = getPathStand(path);
             if (dSlime == null) {
                 chunk.unload();
                 return false;
@@ -213,29 +214,29 @@ public class ZiplineManager implements Listener {
 
         if (getPathSlimes(fenceLoc, 0.3f, 0.5f, 0.3f).size() < 1)
             return true;
-        var pathslime = getPathSlime(fenceLoc);
-        var itemAmount = rmPath(pathslime);
+        var pathstand = getPathStand(fenceLoc);
+        var itemAmount = rmPath(pathstand);
 
         _plugin.ziplimeitem.dropItem(fenceLoc, itemAmount);
         chunk.unload();
         return true;
     }
 
-    public int rmPath(Slime pathslime) {
-        if (pathslime == null)
+    public int rmPath(ArmorStand pathstand) {
+        if (pathstand == null)
             return 0;
-        List<Location> paths = DataManager.getData(pathslime);
+        List<Location> paths = DataManager.getData(pathstand);
         if (DEBUG)
             _plugin.getLogger().info("path list size: " + paths.size());
 
         if (paths != null) {
             for (Location location : paths) {
-                var connectPathSlime = getPathSlime(location);
+                var connectPathSlime = getPathStand(location);
                 List<Location> connecList = DataManager.getData(connectPathSlime);
                 if (DEBUG)
                     _plugin.getLogger().info("bfore list size: " + connecList.size());
 
-                connecList.remove(pathslime.getLocation());
+                connecList.remove(pathstand.getLocation());
                 if (DEBUG)
                     _plugin.getLogger().info("after list size: " + connecList.size());
 
@@ -244,7 +245,7 @@ public class ZiplineManager implements Listener {
                 DataManager.setData(connectPathSlime, connecList);
             }
         }
-        pathslime.remove();
+        pathstand.remove();
         return paths.size();
     }
 
@@ -263,37 +264,37 @@ public class ZiplineManager implements Listener {
     @EventHandler
     public void onEntityDeath(EntityDeathEvent e) {
         var entity = e.getEntity();
-        if (entity.getType() != EntityType.SLIME)
+        if (entity.getType() != EntityType.ARMOR_STAND)
             return;
-        if (!DataManager.hasData((Slime) entity))
+        if (!DataManager.hasData((ArmorStand) entity))
             return;
         e.setCancelled(true);
     }
 
-    private static void slimeSet(Slime slime) {
-        slime.setCustomName(CUSTOM_NAME);
-        slime.setAI(false);
-        slime.setRemoveWhenFarAway(false);
-        slime.setInvulnerable(true);
-        slime.setSilent(true);
-        slime.setSize(1);
-        slime.setGravity(false);
-        slime.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY,
+    private static void slimeSet(ArmorStand stand) {
+        stand.setCustomName(CUSTOM_NAME);
+        stand.setAI(false);
+        stand.setRemoveWhenFarAway(false);
+        stand.setInvulnerable(true);
+        stand.setSilent(true);
+        //stand.setSize(1);
+        stand.setGravity(false);
+        stand.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY,
                 Integer.MAX_VALUE, 1, false, false));
     }
 
-    private Object[] spawnHitches(Slime[] slimes) {
+    private Object[] spawnHitches(ArmorStand[] stands) {
         var res = new ArrayList<LeashHitch>();
         // どうせ消えるなら柵と同じ場所に生成させるようにする
-        for (Slime slime : slimes) {
-            var hitch = spawnHitch(slime);
+        for (ArmorStand stand : stands) {
+            var hitch = spawnHitch(stand);
             res.add(hitch);
-            slime.setLeashHolder(hitch);
+            stand.setLeashHolder(hitch);
         }
         return res.toArray();
     }
 
-    public LeashHitch spawnHitch(Slime slime) {
+    public LeashHitch spawnHitch(ArmorStand slime) {
         var world = slime.getWorld();
         var hithes = world.getNearbyEntities(slime.getLocation(), 1, 1, 1).stream()
                 .filter(s -> s.getType() == EntityType.LEASH_HITCH).toList();
@@ -305,10 +306,10 @@ public class ZiplineManager implements Listener {
 
     }
 
-    private Slime[] spawnSlimes(Location spawnLocation, Location destLocation) {
+    private ArmorStand[] spawnSlimes(Location spawnLocation, Location destLocation) {
 
-        var src = spawnSlime(spawnLocation);
-        var dst = spawnSlime(destLocation);
+        var src = spawnStand(spawnLocation);
+        var dst = spawnStand(destLocation);
 
         List<Location> src_data = new ArrayList<Location>();
         if (DataManager.hasData(src))
@@ -324,19 +325,19 @@ public class ZiplineManager implements Listener {
             dst_data.add(spawnLocation);
         DataManager.setData(dst, dst_data);
 
-        Slime[] res = { src, dst };
+        ArmorStand[] res = { src, dst };
         return res;
     }
 
-    public Slime spawnSlime(Location spawnLoc) {
+    public ArmorStand spawnStand(Location spawnLoc) {
         var chunk = ensureChunk(spawnLoc);
-        var slime = getPathSlime(spawnLoc);
-        if (slime == null) {
-            slime = (Slime) spawnLoc.getWorld().spawnEntity(spawnLoc, EntityType.SLIME);
-            slimeSet(slime);
+        var stand = getPathStand(spawnLoc);
+        if (stand == null) {
+            stand = (ArmorStand) spawnLoc.getWorld().spawnEntity(spawnLoc, EntityType.ARMOR_STAND);
+            slimeSet(stand);
         }
         chunk.unload();
-        return slime;
+        return stand;
     }
 
     @EventHandler
@@ -360,7 +361,7 @@ public class ZiplineManager implements Listener {
             return;
         if (entity.getCustomName() == null)
             return;
-        if (!DataManager.hasData((Slime) entity))
+        if (!DataManager.hasData((ArmorStand) entity))
             return;
         e.setCancelled(true);
     }
@@ -416,7 +417,7 @@ public class ZiplineManager implements Listener {
             return;
         }
 
-        var path = getPathSlime(src_loc);
+        var path = getPathStand(src_loc);
         if (path != null)
             if (DataManager.getData(path).contains(dst_loc)) {
                 player.sendMessage("二度付け禁止ダメ絶対, 経路消しとくよ");

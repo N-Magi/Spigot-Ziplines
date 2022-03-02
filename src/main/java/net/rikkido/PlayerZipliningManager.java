@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Slime;
@@ -61,12 +62,12 @@ public class PlayerZipliningManager implements Listener {
                     if (res.isfinished) {
                         if (DEBUG)
                             _plugin.getLogger().info("call zipline finish Process");
-                        var slime = _plugin.ziplineManager.getPathSlime(res.dst);
-                        if (slime == null) {
+                        var stand = _plugin.ziplineManager.getPathStand(res.dst);
+                        if (stand == null) {
                             stopPlayerZipping(player);
                             continue;
                         }
-                        var nextloc = culculateNextPath(slime, mp.oldlocs, player);
+                        var nextloc = culculateNextPath(stand, mp.oldlocs, player);
                         if (nextloc == null) {
                             stopPlayerZipping(player);
                             continue;
@@ -99,9 +100,9 @@ public class PlayerZipliningManager implements Listener {
     }
 
     // 移動開始
-    public void playerStartZiplining(Player p, Slime e) {
+    public void playerStartZiplining(Player p, ArmorStand e) {
         List<Location> oldLocs = new ArrayList<Location>();
-        Location loc = culculateNextPath((Slime) e, oldLocs, p);
+        Location loc = culculateNextPath((ArmorStand) e, oldLocs, p);
 
         if (DEBUG) {
             var s1 = String.format("%f, %f, %f", loc.getX(), loc.getY(), loc.getZ());
@@ -206,22 +207,22 @@ public class PlayerZipliningManager implements Listener {
             if (DEBUG)
                 _plugin.getLogger().info("RopeClicked Hitch");
 
-            var pathSlime = _plugin.ziplineManager.getPathSlime(entity.getLocation());
-            if (pathSlime == null)
+            var pathStand = _plugin.ziplineManager.getPathStand(entity.getLocation());
+            if (pathStand == null)
                 return;
-            playerStartZiplining(e.getPlayer(), pathSlime);
+            playerStartZiplining(e.getPlayer(), pathStand);
 
         }
-        if (entity.getType() == EntityType.SLIME) {
+        if (entity.getType() == EntityType.ARMOR_STAND) {
             if (DEBUG)
                 _plugin.getLogger().info("RopeClicked Slime");
             if (entity.getCustomName() == null)
                 return;
-            if (!DataManager.hasData((Slime) entity)) {
+            if (!DataManager.hasData((ArmorStand) entity)) {
                 _plugin.getLogger().info(entity.getCustomName());
                 return;
             }
-            playerStartZiplining(e.getPlayer(), (Slime) entity);
+            playerStartZiplining(e.getPlayer(), (ArmorStand) entity);
 
         }
     }
@@ -231,16 +232,16 @@ public class PlayerZipliningManager implements Listener {
         var entity = e.getEntity();
         if (DEBUG)
             _plugin.getLogger().info("drop: " + entity.getType());
-        if (entity.getType() != EntityType.SLIME)
+        if (entity.getType() != EntityType.ARMOR_STAND)
             return;
         if (entity.getCustomName() == null)
             return;
-        if (!DataManager.hasData((Slime) entity))
+        if (!DataManager.hasData((ArmorStand) entity))
             return;
         e.setCancelled(true);
     }
 
-    public Location culculateNextPath(Slime ropeEdge, List<Location> oldlocs, Player player) {
+    public Location culculateNextPath(ArmorStand ropeEdge, List<Location> oldlocs, Player player) {
         if (DataManager.hasData(ropeEdge)) {
             List<Location> nextLocs = DataManager.getData(ropeEdge);
             var current = ropeEdge.getLocation();

@@ -3,6 +3,7 @@ package net.rikkido;
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Particle;
+import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Slime;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -40,8 +41,7 @@ public class ZiplineVisualizeManager implements Listener {
     public void onPlayerEnterRange(ZiplineEnterPlayerRangeHandler event) {
         var slimes = event.getSlimes();
         for (var slime : slimes) {
-            var s = (Slime) slime;
-            var nextloc = DataManager.getData((Slime) slime);
+            var nextloc = DataManager.getData((ArmorStand) slime);
             for (var next : nextloc) {
                 spanwParticleLines(slime.getLocation(), next, stage);
             }

@@ -6,6 +6,7 @@ import javax.xml.stream.events.Namespace;
 
 import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
+import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Slime;
 import org.bukkit.inventory.ItemStack;
@@ -16,39 +17,39 @@ public class DataManager {
     static NamespacedKey KEY;
     static NamespacedKey ZIP_PLAYER;
     static NamespacedKey ENTITY_LEASHED;
-    static NamespacedKey PATH_SLIME;
+    static NamespacedKey PATH_STAND;
     static NamespacedKey ITEM_ZIPLINE;
 
     public static void setValues(Plugin namespace) {
         KEY = new NamespacedKey(namespace, "loc");
-        PATH_SLIME = new NamespacedKey(namespace, "pathslime");
+        PATH_STAND = new NamespacedKey(namespace, "pathstand");
         ZIP_PLAYER = new NamespacedKey(namespace, "zipplayer");
         ENTITY_LEASHED = new NamespacedKey(namespace, "entityleashed");
         ITEM_ZIPLINE = new NamespacedKey(namespace, "itemzipline");
     }
 
-    public static List<Location> getData(Slime slime) {
-        var container = slime.getPersistentDataContainer();
-        if (!container.has(PATH_SLIME, PersistentDataType.BYTE_ARRAY))
+    public static List<Location> getData(ArmorStand stand) {
+        var container = stand.getPersistentDataContainer();
+        if (!container.has(PATH_STAND, PersistentDataType.BYTE_ARRAY))
             return null;
-        return BukkitContainerSerializer.deserialize(container.get(PATH_SLIME, PersistentDataType.BYTE_ARRAY));
+        return BukkitContainerSerializer.deserialize(container.get(PATH_STAND, PersistentDataType.BYTE_ARRAY));
     }
 
-    public static void setData(Slime slime, List<Location> path) {
-        var container = slime.getPersistentDataContainer();
+    public static void setData(ArmorStand stand, List<Location> path) {
+        var container = stand.getPersistentDataContainer();
 
-        container.set(PATH_SLIME, PersistentDataType.BYTE_ARRAY, BukkitContainerSerializer.serialize(path));
+        container.set(PATH_STAND, PersistentDataType.BYTE_ARRAY, BukkitContainerSerializer.serialize(path));
     }
 
-    public static void removeData(Slime slime) {
-        if (hasData(slime))
-            slime.getPersistentDataContainer().remove(PATH_SLIME);
+    public static void removeData(ArmorStand stand) {
+        if (hasData(stand))
+            stand.getPersistentDataContainer().remove(PATH_STAND);
     }
 
-    public static boolean hasData(Slime slime) {
-        if (slime == null)
+    public static boolean hasData(ArmorStand stand) {
+        if (stand == null)
             return false;
-        return slime.getPersistentDataContainer().has(PATH_SLIME, PersistentDataType.BYTE_ARRAY);
+        return stand.getPersistentDataContainer().has(PATH_STAND, PersistentDataType.BYTE_ARRAY);
     }
 
     public static MovePlayer getData(Player player) {

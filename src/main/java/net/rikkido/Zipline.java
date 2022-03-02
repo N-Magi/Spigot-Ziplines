@@ -7,6 +7,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Slime;
 import org.bukkit.event.Listener;
@@ -41,7 +42,7 @@ public class Zipline extends JavaPlugin implements Listener, CommandExecutor {
             var p = (Player) sender;
             if (args.length == 2) {
                 var id = args[1];
-                var slime = (Slime) p.getWorld().getEntity(UUID.fromString(id));
+                var slime = (ArmorStand) p.getWorld().getEntity(UUID.fromString(id));
                 if (slime == null) {
                     p.sendMessage(String.format("%sは存在しません", id));
                     return false;

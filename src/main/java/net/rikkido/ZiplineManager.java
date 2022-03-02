@@ -30,7 +30,6 @@ import org.bukkit.scheduler.BukkitRunnable;
 import net.ZiplineEnterPlayerRangeHandler;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
-import net.kyori.adventure.text.format.TextDecoration;
 
 public class ZiplineManager implements Listener {
 

@@ -1,4 +1,4 @@
-main: net.rikkido.App
+main: net.rikkido.Zipline
 name: ziplines
 version: 0.1
 api: 1.18.1

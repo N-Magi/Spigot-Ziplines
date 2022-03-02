@@ -46,6 +46,8 @@ public class DataManager {
     }
 
     public static boolean hasData(Slime slime) {
+        if (slime == null)
+            return false;
         return slime.getPersistentDataContainer().has(PATH_SLIME, PersistentDataType.BYTE_ARRAY);
     }
 

@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Slime;
@@ -16,15 +17,27 @@ import org.bukkit.event.hanging.HangingBreakByEntityEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.util.Vector;
 
-public class PlayerZippingManager implements Listener {
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.TextColor;
+
+public class PlayerZipliningManager implements Listener {
 
     Boolean DEBUG = false;
-    private App _plugin;
+    private Zipline _plugin;
 
-    public PlayerZippingManager(App plugin) {
+    private Double _speed;
+    private Double _finish_Radius;
+
+    public PlayerZipliningManager(Zipline plugin) {
         _plugin = plugin;
+
+        _speed = _plugin.config.ziplineConfig.Speed.value;
+        _finish_Radius = _plugin.config.zipliningConfig.FinishRadius.value;
+
         new BukkitRunnable() {
             @Override
             public void run() {
@@ -41,19 +54,28 @@ public class PlayerZippingManager implements Listener {
 
                     if (DEBUG)
                         _plugin.getLogger().info("beforeZipping:" + mp.player);
-                    MovePlayer res = playerZipping(mp);
+                    MovePlayer res = playerZiplining(mp);
+
+                    player.sendActionBar(Component
+                            .text(String.format("`shit`キーで途中下車"))
+                            .color(TextColor.color(255, 255, 0)));
+
+                    // 終了時処理
                     if (res.isfinished) {
                         if (DEBUG)
                             _plugin.getLogger().info("call zipline finish Process");
-                        var nextloc = culculateNextPath(ZipLineManager.getPathSlime(res.dst),
-                                mp.oldlocs);
-                        if (nextloc == null) {
-                            var p = Bukkit.getPlayer(res.player);
-
-                            p.setGravity(true);
-                            DataManager.removeData(p);
+                        var slime = _plugin.ziplineManager.getPathSlime(res.dst);
+                        if (slime == null) {
+                            stopPlayerZipping(player);
                             continue;
                         }
+                        var nextloc = culculateNextPath(slime, mp.oldlocs, player);
+                        if (nextloc == null) {
+                            stopPlayerZipping(player);
+                            continue;
+                        }
+                        // 継続処理(次点移動)
+                        player.setVelocity(new Vector(0, 0, 0));
                         res.src = res.dst;
                         res.dst = nextloc;
 
@@ -71,13 +93,18 @@ public class PlayerZippingManager implements Listener {
                 }
 
             }
-        }.runTaskTimer(_plugin, 0, 2);
+        }.runTaskTimer(_plugin, 0, 1);
+    }
+
+    public void stopPlayerZipping(Player p) {
+        p.setGravity(true);
+        DataManager.removeData(p);
     }
 
     // 移動開始
-    public void playerStartZipping(Player p, Slime e) {
+    public void playerStartZiplining(Player p, Slime e) {
         List<Location> oldLocs = new ArrayList<Location>();
-        Location loc = culculateNextPath((Slime) e, oldLocs);
+        Location loc = culculateNextPath((Slime) e, oldLocs, p);
 
         if (DEBUG) {
             var s1 = String.format("%f, %f, %f", loc.getX(), loc.getY(), loc.getZ());
@@ -86,12 +113,14 @@ public class PlayerZippingManager implements Listener {
 
         var mp = new MovePlayer();
         mp.player = p.getUniqueId();
-        mp.dst = loc;// ここ要注意（マルチパス対応の時にひっかかかる）
-        mp.src = e.getLocation();// ここ
+        // mp.dst = loc;// ここ要注意（マルチパス対応の時にひっかかかる）
+        // mp.src = e.getLocation();// ここ
+        mp.dst = e.getLocation();
+        mp.src = p.getLocation();
 
         mp.oldlocs = oldLocs;
-        mp.oldlocs.add(e.getLocation());
-        mp.oldlocs.add(loc);
+        mp.oldlocs.add(mp.dst);
+        mp.oldlocs.add(mp.src);
 
         // mp.nxt = loc; // path情報書き込み
 
@@ -101,26 +130,33 @@ public class PlayerZippingManager implements Listener {
         DataManager.setData(p, mp);
         if (DEBUG)
             _plugin.getLogger().info("has data? : " + DataManager.hasData(p));
+
         p.setGravity(false);
 
     }
 
     // 移動中
-    public MovePlayer playerZipping(MovePlayer mplayer) {
+    public MovePlayer playerZiplining(MovePlayer mplayer) {
 
-        var speed = 1.0f;// 1 block per 2 tick
-        var finishRadius = 2.0f;
+        double speed = _speed;// 1 block per 2 tick
+        var finishRadius = _finish_Radius;
 
         var player = Bukkit.getPlayer(mplayer.player);
         var loc = player.getLocation();
         var dst_item = mplayer;
+
+        // 異なるワールドでの移動について中止
+        if (!loc.getWorld().equals(dst_item.dst.getWorld())) {
+            mplayer.isfinished = true;
+            return mplayer;
+        }
         player.setFallDistance(0);
         var distDstPlayer = new Location(player.getWorld(),
                 dst_item.dst.getX() - loc.getX(),
                 dst_item.dst.getY() - loc.getY() - 2.5,
                 dst_item.dst.getZ() - loc.getZ());
 
-        var r = Calc.getRadius(distDstPlayer);
+        var r = distDstPlayer.length();
         if (r <= finishRadius) {
             if (DEBUG)
                 _plugin.getLogger().info("call finish radius process");
@@ -128,7 +164,7 @@ public class PlayerZippingManager implements Listener {
             return mplayer;
         }
 
-        var a = Calc.getRadius(dst_item.length);
+        // var a = Calc.getRadius(dst_item.length);
         var mul = speed / r;
         var length = distDstPlayer.toVector();
         length.multiply(mul);
@@ -142,10 +178,8 @@ public class PlayerZippingManager implements Listener {
     }
 
     @EventHandler
-    public void onPlayerToggleSneak(PlayerToggleSneakEvent e) {
+    public void onPlayerLeave(PlayerToggleSneakEvent e) {
         var player = e.getPlayer();
-        if (player.isSneaking() == false)
-            return;
         if (player.hasGravity() == false)
             player.setGravity(true);
         DataManager.removeData(player);
@@ -158,12 +192,15 @@ public class PlayerZippingManager implements Listener {
 
     // 滑空
     @EventHandler
-    public void onPlayerInteracEntityEvent(PlayerInteractEntityEvent e) {
+    public void onPlayerStartZiplining(PlayerInteractEntityEvent e) {
 
         if (e.getPlayer().isSneaking() == true)
             return;
 
         if (!e.getHand().equals(EquipmentSlot.HAND))
+            return;
+
+        if (_plugin.debugitem.isItem(e.getPlayer().getInventory().getItemInMainHand()))
             return;
 
         var entity = e.getRightClicked();
@@ -172,10 +209,10 @@ public class PlayerZippingManager implements Listener {
             if (DEBUG)
                 _plugin.getLogger().info("RopeClicked Hitch");
 
-            var pathSlime = ZipLineManager.getPathSlime(entity.getLocation());
+            var pathSlime = _plugin.ziplineManager.getPathSlime(entity.getLocation());
             if (pathSlime == null)
                 return;
-            playerStartZipping(e.getPlayer(), pathSlime);
+            playerStartZiplining(e.getPlayer(), pathSlime);
 
         }
         if (entity.getType() == EntityType.SLIME) {
@@ -187,21 +224,9 @@ public class PlayerZippingManager implements Listener {
                 _plugin.getLogger().info(entity.getCustomName());
                 return;
             }
-            playerStartZipping(e.getPlayer(), (Slime) entity);
+            playerStartZiplining(e.getPlayer(), (Slime) entity);
 
         }
-    }
-
-    @EventHandler
-    public void onHangingBreakByEntity(HangingBreakByEntityEvent e) {
-        var entity = e.getEntity();
-        if (entity.getType() != EntityType.LEASH_HITCH)
-            return;
-        if (entity.getCustomName() == null)
-            return;
-        if (!DataManager.hasData((Slime) entity))
-            return;
-        e.setCancelled(true);
     }
 
     @EventHandler
@@ -218,37 +243,10 @@ public class PlayerZippingManager implements Listener {
         e.setCancelled(true);
     }
 
-    // pathを計算
-    public List<Location> culculateFullPath(Slime nextSlime2, List<Location> locs) {
-        var world = nextSlime2.getWorld();
-        var loc = nextSlime2.getLocation();
-        if (DataManager.hasData(nextSlime2)) {
-            List<Location> nextLocs = DataManager.getData(nextSlime2);
-
-            nextLocs.remove(nextSlime2.getLocation());
-            var copylocs = locs;
-            nextLocs = nextLocs.stream().filter(f -> !copylocs.contains(f)).toList();
-
-            locs.add(loc);
-
-            if (nextLocs.size() < 1) {
-                return locs;
-            }
-            var nextloc = nextLocs.get(0);
-            var nextSlime = ZipLineManager.getPathSlime(nextloc);
-            if (nextSlime == null)
-                return locs;
-            locs = culculateFullPath(nextSlime, locs);
-            return locs;
-        }
-        throw new NullPointerException("Path Slime PersistentDataContainerにデータが挿入されていません。");
-    }
-
-    public Location culculateNextPath(Slime ropeEdge, List<Location> oldlocs) {
-        var world = ropeEdge.getWorld();
-        var loc = ropeEdge.getLocation();
+    public Location culculateNextPath(Slime ropeEdge, List<Location> oldlocs, Player player) {
         if (DataManager.hasData(ropeEdge)) {
             List<Location> nextLocs = DataManager.getData(ropeEdge);
+            var current = ropeEdge.getLocation();
             nextLocs.remove(ropeEdge.getLocation());
             var copylocs = oldlocs;
             nextLocs = nextLocs.stream().filter(f -> !copylocs.contains(f)).toList();
@@ -256,7 +254,38 @@ public class PlayerZippingManager implements Listener {
             if (nextLocs.size() < 1)
                 return null;
 
+            if (DEBUG) {
+                var s1 = String.format("pitch: %f,Yow: %f", player.getLocation().getPitch(),
+                        player.getLocation().getYaw());
+                _plugin.getLogger().info("player position: " + s1);
+            }
+
             var nl = nextLocs.get(0);
+            Double max = 0.0d;
+
+            for (var point : nextLocs) {
+                var vector = point.toVector().subtract(current.toVector());
+                vector = vector.normalize();
+                var tVector = new Vector();
+                tVector.setY(Math.sin(-player.getLocation().getPitch() / 180 * Math.PI));
+                tVector.setX(-Math.sin(player.getLocation().getYaw() / 180 * Math.PI));
+                tVector.setZ(Math.cos(player.getLocation().getYaw() / 180 * Math.PI));
+                tVector.normalize();
+                var diff = vector.dot(tVector);
+
+                if (DEBUG) {
+                    var s1 = String.format("%f, %f, %f", point.getX(), point.getY(), point.getZ());
+                    _plugin.getLogger().info("pos: " + s1);
+                    _plugin.getLogger().info("diff: " + diff);
+                }
+
+                if (diff >= max) {
+                    max = diff;
+                    nl = point;
+                }
+
+            }
+
             if (DEBUG) {
                 var s1 = String.format("%f, %f, %f", nl.getX(), nl.getY(), nl.getZ());
                 _plugin.getLogger().info("answer: " + s1);
@@ -266,4 +295,5 @@ public class PlayerZippingManager implements Listener {
         }
         throw new NullPointerException("Path Slime PersistentDataContainerにデータが挿入されていません。");
     }
+
 }

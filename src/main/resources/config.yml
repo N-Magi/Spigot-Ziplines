@@ -1,0 +1,19 @@
+zipline:
+  speed: 1.0
+  max_radius: -1.0
+ziplining:
+  finizh_raduis: 0.5
+item:
+  ZiplineRecipe:
+    ItemShape:
+      - ILI
+    RecipeItem:
+      - I: IRON_INGOT
+      - L: LEAD
+  DebugStickRecipe:
+    ItemShape:
+      - D
+      - S
+    RecipeItem:
+      - D: DIAMOND
+      - S: STICK

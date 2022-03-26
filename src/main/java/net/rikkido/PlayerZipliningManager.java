@@ -95,14 +95,14 @@ public class PlayerZipliningManager implements Listener {
 
     @EventHandler
     public void onPlayerZipping(PlayerZippingEventHandler e) {
-        var player = e.getPlayer();
-        MovePlayer mp = DataManager.getData(player);
+        var player = new ZiplinePlayer(e.getPlayer());
+        MovePlayer mp = player.getZippingData();// DataManager.getData(player);
 
         if (DEBUG)
             _plugin.getLogger().info("beforeZipping:" + mp.player);
         MovePlayer res = playerZiplining(mp);
 
-        player.sendActionBar(Component
+        player.getPlayer().sendActionBar(Component
                 .text(String.format("`shit`キーで途中下車"))
                 .color(TextColor.color(255, 255, 0)));
 
@@ -115,13 +115,13 @@ public class PlayerZipliningManager implements Listener {
                 stopPlayerZipping(player);
                 return;
             }
-            var nextloc = culculateNextPath(slime, mp.oldlocs, player);
+            var nextloc = culculateNextPath(slime, mp.oldlocs, player.getPlayer());
             if (nextloc == null) {
                 stopPlayerZipping(player);
                 return;
             }
             // 継続処理(次点移動)
-            player.setVelocity(new Vector(0, 0, 0));
+            player.getPlayer().setVelocity(new Vector(0, 0, 0));
             res.src = res.dst;
             res.dst = nextloc;
 
@@ -134,19 +134,20 @@ public class PlayerZipliningManager implements Listener {
         }
         if (DEBUG)
             _plugin.getLogger().info("call continue zipline process");
-        DataManager.setData(player, res);
+
+        player.setZippingData(res);
         return;
     }
 
-    public void stopPlayerZipping(Player p) {
-        p.setGravity(true);
-        DataManager.removeData(p);
+    public void stopPlayerZipping(ZiplinePlayer p) {
+        p.getPlayer().setGravity(true);
+        p.removeZippingData();
     }
 
     // 移動開始
-    public void playerStartZiplining(Player p, Slime e) {
+    public void playerStartZiplining(ZiplinePlayer p, Slime e) {
         List<Location> oldLocs = new ArrayList<Location>();
-        Location loc = culculateNextPath((Slime) e, oldLocs, p);
+        Location loc = culculateNextPath((Slime) e, oldLocs, p.getPlayer());
 
         if (DEBUG) {
             var s1 = String.format("%f, %f, %f", loc.getX(), loc.getY(), loc.getZ());
@@ -154,11 +155,11 @@ public class PlayerZipliningManager implements Listener {
         }
 
         var mp = new MovePlayer();
-        mp.player = p.getUniqueId();
+        mp.player = p.getPlayer().getUniqueId();
         // mp.dst = loc;// ここ要注意（マルチパス対応の時にひっかかかる）
         // mp.src = e.getLocation();// ここ
         mp.dst = e.getLocation();
-        mp.src = p.getLocation();
+        mp.src = p.getPlayer().getLocation();
 
         mp.oldlocs = oldLocs;
         mp.oldlocs.add(mp.dst);
@@ -169,11 +170,11 @@ public class PlayerZipliningManager implements Listener {
         mp.isfinished = false;
         mp.length = mp.dst.toVector().subtract(mp.src.toVector());
 
-        DataManager.setData(p, mp);
+        p.setZippingData(mp);
         if (DEBUG)
-            _plugin.getLogger().info("has data? : " + DataManager.hasData(p));
+            _plugin.getLogger().info("has data? : " + p.hasZippingData());
 
-        p.setGravity(false);
+        p.getPlayer().setGravity(false);
 
     }
 
@@ -221,15 +222,15 @@ public class PlayerZipliningManager implements Listener {
 
     @EventHandler
     public void onPlayerLeave(PlayerToggleSneakEvent e) {
-        var player = e.getPlayer();
-        if (player.hasGravity() == false)
-            player.setGravity(true);
-        DataManager.removeData(player);
+        var player = new ZiplinePlayer(e.getPlayer());
+        if (player.getPlayer().hasGravity() == false)
+            player.getPlayer().setGravity(true);
+        player.removeZippingData();
     }
 
     @EventHandler
     public void onPlayerDeath(PlayerDeathEvent e) {
-        DataManager.removeData(e.getPlayer());
+        (new ZiplinePlayer(e.getPlayer())).removeZippingData();
     }
 
     // 滑空
@@ -246,6 +247,7 @@ public class PlayerZipliningManager implements Listener {
             return;
 
         var entity = e.getRightClicked();
+        var zipplayer = new ZiplinePlayer(e.getPlayer());
         if (entity.getType() == EntityType.LEASH_HITCH) {
             e.setCancelled(true);
             if (DEBUG)
@@ -254,7 +256,7 @@ public class PlayerZipliningManager implements Listener {
             var pathSlime = _plugin.ziplineManager.getPathSlime(entity.getLocation());
             if (pathSlime == null)
                 return;
-            playerStartZiplining(e.getPlayer(), pathSlime);
+            playerStartZiplining(zipplayer, pathSlime);
 
         }
         if (entity.getType() == EntityType.SLIME) {
@@ -266,7 +268,7 @@ public class PlayerZipliningManager implements Listener {
                 _plugin.getLogger().info(entity.getCustomName());
                 return;
             }
-            playerStartZiplining(e.getPlayer(), (Slime) entity);
+            playerStartZiplining(zipplayer, (Slime) entity);
 
         }
     }

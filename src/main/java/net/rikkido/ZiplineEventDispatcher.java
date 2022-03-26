@@ -32,7 +32,8 @@ public class ZiplineEventDispatcher {
             @Override
             public void run() {
                 for (var player : zipline.getServer().getOnlinePlayers()) {
-                    if (!DataManager.hasData(player)) {
+                    var zplayer = new ZiplinePlayer(player);
+                    if (!zplayer.hasZippingData()) {
                         continue;
                     }
                     var zippingEvent = new PlayerZippingEventHandler(player);

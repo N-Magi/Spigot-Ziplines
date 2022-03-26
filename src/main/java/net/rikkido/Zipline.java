@@ -12,8 +12,6 @@ import org.bukkit.entity.Slime;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import net.Namespacekey;
-
 public class Zipline extends JavaPlugin implements Listener, CommandExecutor {
 
     List<MovePlayer> mplayer;

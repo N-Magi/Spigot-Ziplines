@@ -1,8 +1,6 @@
-package net;
+package net.rikkido;
 
 import org.bukkit.NamespacedKey;
-
-import net.rikkido.Zipline;
 
 public class Namespacekey {
 

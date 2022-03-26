@@ -1,7 +1,6 @@
 package net.rikkido.config;
 
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.file.FileConfiguration;
 
 public class Config<type> {
     public String configName;

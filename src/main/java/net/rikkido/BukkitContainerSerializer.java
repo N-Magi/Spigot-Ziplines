@@ -15,7 +15,7 @@ public class BukkitContainerSerializer {
             dataOut.close();
             return outstream.toByteArray();
         } catch (Exception e) {
-            throw new IllegalStateException("Bukkit Serialization Error.", e);
+            return null; 
         }
     }
 
@@ -26,7 +26,7 @@ public class BukkitContainerSerializer {
             var res = (Type) dataIn.readObject();
             return res;
         } catch (Exception e) {
-            throw new IllegalStateException("Bukkit Deserialize Error.", e);
+            return null;
         }
     }
 }

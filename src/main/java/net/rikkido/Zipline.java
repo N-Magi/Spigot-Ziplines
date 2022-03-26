@@ -12,6 +12,8 @@ import org.bukkit.entity.Slime;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import net.Namespacekey;
+
 public class Zipline extends JavaPlugin implements Listener, CommandExecutor {
 
     List<MovePlayer> mplayer;
@@ -23,7 +25,9 @@ public class Zipline extends JavaPlugin implements Listener, CommandExecutor {
     protected ZiplineVisualizeManager visualManger;
     protected ZiplineItem ziplimeitem;
     protected DebugStickItem debugitem;
-    protected ConfigManager config;
+    public ConfigManager config;
+    public ZiplineEventDispatcher eventDispatcher;
+    public Namespacekey keys;
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
@@ -70,7 +74,8 @@ public class Zipline extends JavaPlugin implements Listener, CommandExecutor {
         visualManger = new ZiplineVisualizeManager(this);
         ziplimeitem = new ZiplineItem(this);
         debugitem = new DebugStickItem(this);
-        
+        eventDispatcher = new ZiplineEventDispatcher(this);
+        keys = new Namespacekey(this);
 
         Bukkit.getPluginManager().registerEvents(ziplineManager, this);
         Bukkit.getPluginManager().registerEvents(zippingManager, this);

@@ -1,4 +1,4 @@
-package net;
+package net.rikkido.Event;
 import java.util.List;
 
 import org.bukkit.block.Block;

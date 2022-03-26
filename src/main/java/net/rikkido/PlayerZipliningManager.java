@@ -5,7 +5,6 @@ import java.util.List;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Slime;
@@ -13,16 +12,14 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDropItemEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
-import org.bukkit.event.hanging.HangingBreakByEntityEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.bukkit.inventory.EquipmentSlot;
-import org.bukkit.plugin.Plugin;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
+import net.rikkido.Event.PlayerZippingEventHandler;
 
 public class PlayerZipliningManager implements Listener {
 
@@ -38,62 +35,107 @@ public class PlayerZipliningManager implements Listener {
         _speed = _plugin.config.ziplineConfig.Speed.value;
         _finish_Radius = _plugin.config.zipliningConfig.FinishRadius.value;
 
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                // zip中のプレイヤーのみ取得
-                for (Player player : Bukkit.getOnlinePlayers()) {
-                    if (!DataManager.hasData(player)) {
-                        player.setGravity(true);
-                        continue;
-                    }
-                    if (DEBUG)
-                        _plugin.getLogger().info("beforedeserialize:" + player.getUniqueId());
+        // new BukkitRunnable() {
+        // @Override
+        // public void run() {
+        // // zip中のプレイヤーのみ取得
+        // for (Player player : Bukkit.getOnlinePlayers()) {
+        // if (!DataManager.hasData(player)) {
+        // player.setGravity(true);
+        // continue;
+        // }
+        // if (DEBUG)
+        // _plugin.getLogger().info("beforedeserialize:" + player.getUniqueId());
 
-                    MovePlayer mp = DataManager.getData(player);
+        // MovePlayer mp = DataManager.getData(player);
 
-                    if (DEBUG)
-                        _plugin.getLogger().info("beforeZipping:" + mp.player);
-                    MovePlayer res = playerZiplining(mp);
+        // if (DEBUG)
+        // _plugin.getLogger().info("beforeZipping:" + mp.player);
+        // MovePlayer res = playerZiplining(mp);
 
-                    player.sendActionBar(Component
-                            .text(String.format("`shit`キーで途中下車"))
-                            .color(TextColor.color(255, 255, 0)));
+        // player.sendActionBar(Component
+        // .text(String.format("`shit`キーで途中下車"))
+        // .color(TextColor.color(255, 255, 0)));
 
-                    // 終了時処理
-                    if (res.isfinished) {
-                        if (DEBUG)
-                            _plugin.getLogger().info("call zipline finish Process");
-                        var slime = _plugin.ziplineManager.getPathSlime(res.dst);
-                        if (slime == null) {
-                            stopPlayerZipping(player);
-                            continue;
-                        }
-                        var nextloc = culculateNextPath(slime, mp.oldlocs, player);
-                        if (nextloc == null) {
-                            stopPlayerZipping(player);
-                            continue;
-                        }
-                        // 継続処理(次点移動)
-                        player.setVelocity(new Vector(0, 0, 0));
-                        res.src = res.dst;
-                        res.dst = nextloc;
+        // // 終了時処理
+        // if (res.isfinished) {
+        // if (DEBUG)
+        // _plugin.getLogger().info("call zipline finish Process");
+        // var slime = _plugin.ziplineManager.getPathSlime(res.dst);
+        // if (slime == null) {
+        // stopPlayerZipping(player);
+        // continue;
+        // }
+        // var nextloc = culculateNextPath(slime, mp.oldlocs, player);
+        // if (nextloc == null) {
+        // stopPlayerZipping(player);
+        // continue;
+        // }
+        // // 継続処理(次点移動)
+        // player.setVelocity(new Vector(0, 0, 0));
+        // res.src = res.dst;
+        // res.dst = nextloc;
 
-                        res.oldlocs.add(nextloc);
+        // res.oldlocs.add(nextloc);
 
-                        res.dst.setY(res.dst.getY());
+        // res.dst.setY(res.dst.getY());
 
-                        res.isfinished = false;
-                        res.length = res.dst.toVector().subtract(res.src.toVector());
-                    }
-                    if (DEBUG)
-                        _plugin.getLogger().info("call continue zipline process");
-                    DataManager.setData(player, res);
-                    continue;
-                }
+        // res.isfinished = false;
+        // res.length = res.dst.toVector().subtract(res.src.toVector());
+        // }
+        // if (DEBUG)
+        // _plugin.getLogger().info("call continue zipline process");
+        // DataManager.setData(player, res);
+        // continue;
+        // }
 
+        // }
+        // }.runTaskTimer(_plugin, 0, 1);
+    }
+
+    @EventHandler
+    public void onPlayerZipping(PlayerZippingEventHandler e) {
+        var player = e.getPlayer();
+        MovePlayer mp = DataManager.getData(player);
+
+        if (DEBUG)
+            _plugin.getLogger().info("beforeZipping:" + mp.player);
+        MovePlayer res = playerZiplining(mp);
+
+        player.sendActionBar(Component
+                .text(String.format("`shit`キーで途中下車"))
+                .color(TextColor.color(255, 255, 0)));
+
+        // 終了時処理
+        if (res.isfinished) {
+            if (DEBUG)
+                _plugin.getLogger().info("call zipline finish Process");
+            var slime = _plugin.ziplineManager.getPathSlime(res.dst);
+            if (slime == null) {
+                stopPlayerZipping(player);
+                return;
             }
-        }.runTaskTimer(_plugin, 0, 1);
+            var nextloc = culculateNextPath(slime, mp.oldlocs, player);
+            if (nextloc == null) {
+                stopPlayerZipping(player);
+                return;
+            }
+            // 継続処理(次点移動)
+            player.setVelocity(new Vector(0, 0, 0));
+            res.src = res.dst;
+            res.dst = nextloc;
+
+            res.oldlocs.add(nextloc);
+
+            res.dst.setY(res.dst.getY());
+
+            res.isfinished = false;
+            res.length = res.dst.toVector().subtract(res.src.toVector());
+        }
+        if (DEBUG)
+            _plugin.getLogger().info("call continue zipline process");
+        DataManager.setData(player, res);
+        return;
     }
 
     public void stopPlayerZipping(Player p) {

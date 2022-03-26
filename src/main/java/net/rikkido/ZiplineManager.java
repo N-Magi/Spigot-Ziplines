@@ -27,10 +27,9 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import net.ZiplineEnterPlayerRangeHandler;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
-import net.kyori.adventure.text.format.TextDecoration;
+import net.rikkido.Event.ZiplineEnterPlayerRangeHandler;
 
 public class ZiplineManager implements Listener {
 

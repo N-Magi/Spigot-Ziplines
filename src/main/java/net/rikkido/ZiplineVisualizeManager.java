@@ -8,7 +8,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import net.ZiplineEnterPlayerRangeHandler;
+import net.rikkido.Event.ZiplineEnterPlayerRangeHandler;
 
 public class ZiplineVisualizeManager implements Listener {
 
@@ -25,13 +25,13 @@ public class ZiplineVisualizeManager implements Listener {
                 stage++;
                 if (stage >= STAGEMAX)
                     stage = 0;
-                for (var a : plugin.getServer().getOnlinePlayers()) {
-                    var silmes = ZiplineManager.getPathSlimes(a.getLocation(), 20f, 20f, 20f);
-                    if (silmes.size() < 1)
-                        continue;
-                    var event = new ZiplineEnterPlayerRangeHandler(a, silmes);
-                    _plugin.getServer().getPluginManager().callEvent(event);
-                }
+                // for (var a : plugin.getServer().getOnlinePlayers()) {
+                //     var silmes = ZiplineManager.getPathSlimes(a.getLocation(), 20f, 20f, 20f);
+                //     if (silmes.size() < 1)
+                //         continue;
+                //     var event = new ZiplineEnterPlayerRangeHandler(a, silmes);
+                //     _plugin.getServer().getPluginManager().callEvent(event);
+                // }
             }
         }.runTaskTimer(plugin, 0, 2);
     }

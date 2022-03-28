@@ -2,7 +2,6 @@ package net.rikkido;
 
 import org.bukkit.configuration.file.FileConfiguration;
 
-import net.rikkido.config.Config;
 import net.rikkido.config.ItemConfig;
 import net.rikkido.config.ZiplineConfig;
 import net.rikkido.config.ZipliningConfig;

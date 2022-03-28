@@ -3,7 +3,6 @@ package net.rikkido;
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Particle;
-import org.bukkit.entity.Slime;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -26,11 +25,11 @@ public class ZiplineVisualizeManager implements Listener {
                 if (stage >= STAGEMAX)
                     stage = 0;
                 // for (var a : plugin.getServer().getOnlinePlayers()) {
-                //     var silmes = ZiplineManager.getPathSlimes(a.getLocation(), 20f, 20f, 20f);
-                //     if (silmes.size() < 1)
-                //         continue;
-                //     var event = new ZiplineEnterPlayerRangeHandler(a, silmes);
-                //     _plugin.getServer().getPluginManager().callEvent(event);
+                // var silmes = ZiplineManager.getPathSlimes(a.getLocation(), 20f, 20f, 20f);
+                // if (silmes.size() < 1)
+                // continue;
+                // var event = new ZiplineEnterPlayerRangeHandler(a, silmes);
+                // _plugin.getServer().getPluginManager().callEvent(event);
                 // }
             }
         }.runTaskTimer(plugin, 0, 2);
@@ -40,10 +39,9 @@ public class ZiplineVisualizeManager implements Listener {
     public void onPlayerEnterRange(ZiplineEnterPlayerRangeHandler event) {
         var slimes = event.getSlimes();
         for (var slime : slimes) {
-            var s = (Slime) slime;
-            var nextloc = DataManager.getData((Slime) slime);
+            var nextloc = slime.getPathData();
             for (var next : nextloc) {
-                spanwParticleLines(slime.getLocation(), next, stage);
+                spanwParticleLines(slime.getSlime().getLocation(), next, stage);
             }
         }
     }

@@ -43,13 +43,16 @@ public class Zipline extends JavaPlugin implements Listener, CommandExecutor {
             var p = (Player) sender;
             if (args.length == 2) {
                 var id = args[1];
+                
                 var slime = (Slime) p.getWorld().getEntity(UUID.fromString(id));
                 if (slime == null) {
                     p.sendMessage(String.format("%sは存在しません", id));
                     return false;
                 }
-                if (DataManager.hasData(slime)) {
-                    slime.remove();
+                var pslime = new PathSlime(slime);
+
+                if (pslime.hasPathData()) {
+                    pslime.removePathData();
                 }
                 p.sendMessage(String.format("%sを削除しました", id));
                 return true;
@@ -79,7 +82,5 @@ public class Zipline extends JavaPlugin implements Listener, CommandExecutor {
         Bukkit.getPluginManager().registerEvents(zippingManager, this);
         Bukkit.getPluginManager().registerEvents(visualManger, this);
         Bukkit.getPluginManager().registerEvents(debugitem, this);
-        DataManager.setValues(this);
-
     }
 }

@@ -9,7 +9,6 @@ import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
-import org.bukkit.entity.Slime;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
@@ -33,7 +32,6 @@ public class DebugStickItem implements IItemBase {
 
     private List<String> _recipeShape = new ArrayList<String>();
     private List<Map<String, String>> _itemMaps = new ArrayList<Map<String, String>>();
-
 
     public DebugStickItem(Zipline plugin) {
         DEBUG = new NamespacedKey(plugin, "debug");
@@ -90,11 +88,11 @@ public class DebugStickItem implements IItemBase {
         recipeZipline.shape(strs);
         _plugin.getLogger().info(strs[0]);
         for (var map : _itemMaps) {
-            for(Map.Entry<String,String> e : map.entrySet()){
+            for (Map.Entry<String, String> e : map.entrySet()) {
                 char c = e.getKey().toCharArray()[0];
                 recipeZipline.setIngredient(c, Material.getMaterial(e.getValue()));
             }
-            
+
         }
 
         return recipeZipline;
@@ -138,19 +136,21 @@ public class DebugStickItem implements IItemBase {
         text = "";
 
         for (var eslime : slimes) {
-            var slime = (Slime) eslime;
-            var pathes = DataManager.getData(slime);
+            var slime = eslime;
+
+            var pathes = slime.getPathData();
 
             compB.append(String.format("%s#%d 選択: %.3f, %.3f, %.3f %s\n UUID: ",
                     ChatColor.GOLD,
                     slimes.indexOf(eslime),
-                    slime.getLocation().getX(),
-                    slime.getLocation().getY(),
-                    slime.getLocation().getZ(),
+                    slime.getSlime().getLocation().getX(),
+                    slime.getSlime().getLocation().getY(),
+                    slime.getSlime().getLocation().getZ(),
                     ChatColor.WHITE));
 
-            var textComponent = new TextComponent(String.format("%s", slime.getUniqueId()));
-            textComponent.setClickEvent(new ClickEvent(Action.COPY_TO_CLIPBOARD, slime.getUniqueId().toString()));
+            var textComponent = new TextComponent(String.format("%s", slime.getSlime().getUniqueId()));
+            textComponent
+                    .setClickEvent(new ClickEvent(Action.COPY_TO_CLIPBOARD, slime.getSlime().getUniqueId().toString()));
             compB.append(textComponent);
 
             compB.append(String.format("\n 経路数: %d \n 設定されている経路\n", pathes.size()));

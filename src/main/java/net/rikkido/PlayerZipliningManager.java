@@ -145,9 +145,9 @@ public class PlayerZipliningManager implements Listener {
     }
 
     // 移動開始
-    public void playerStartZiplining(ZiplinePlayer p, Slime e) {
+    public void playerStartZiplining(ZiplinePlayer p, PathSlime e) {
         List<Location> oldLocs = new ArrayList<Location>();
-        Location loc = culculateNextPath((Slime) e, oldLocs, p.getPlayer());
+        Location loc = culculateNextPath(e, oldLocs, p.getPlayer());
 
         if (DEBUG) {
             var s1 = String.format("%f, %f, %f", loc.getX(), loc.getY(), loc.getZ());
@@ -158,7 +158,7 @@ public class PlayerZipliningManager implements Listener {
         mp.player = p.getPlayer().getUniqueId();
         // mp.dst = loc;// ここ要注意（マルチパス対応の時にひっかかかる）
         // mp.src = e.getLocation();// ここ
-        mp.dst = e.getLocation();
+        mp.dst = e.getSlime().getLocation();
         mp.src = p.getPlayer().getLocation();
 
         mp.oldlocs = oldLocs;
@@ -260,15 +260,16 @@ public class PlayerZipliningManager implements Listener {
 
         }
         if (entity.getType() == EntityType.SLIME) {
+            var pslime = new PathSlime(entity);
             if (DEBUG)
                 _plugin.getLogger().info("RopeClicked Slime");
             if (entity.getCustomName() == null)
                 return;
-            if (!DataManager.hasData((Slime) entity)) {
+            if (!pslime.hasPathData()) {
                 _plugin.getLogger().info(entity.getCustomName());
                 return;
             }
-            playerStartZiplining(zipplayer, (Slime) entity);
+            playerStartZiplining(zipplayer, new PathSlime(entity));
 
         }
     }
@@ -282,16 +283,17 @@ public class PlayerZipliningManager implements Listener {
             return;
         if (entity.getCustomName() == null)
             return;
-        if (!DataManager.hasData((Slime) entity))
+        var pslime = new PathSlime(entity);
+        if (!pslime.hasPathData())
             return;
         e.setCancelled(true);
     }
 
-    public Location culculateNextPath(Slime ropeEdge, List<Location> oldlocs, Player player) {
-        if (DataManager.hasData(ropeEdge)) {
-            List<Location> nextLocs = DataManager.getData(ropeEdge);
-            var current = ropeEdge.getLocation();
-            nextLocs.remove(ropeEdge.getLocation());
+    public Location culculateNextPath(PathSlime ropeEdge, List<Location> oldlocs, Player player) {
+        if (ropeEdge.hasPathData()) {
+            List<Location> nextLocs = ropeEdge.getPathData();
+            var current = ropeEdge.getSlime().getLocation();
+            nextLocs.remove(ropeEdge.getSlime().getLocation());
             var copylocs = oldlocs;
             nextLocs = nextLocs.stream().filter(f -> !copylocs.contains(f)).toList();
 

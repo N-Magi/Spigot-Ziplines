@@ -24,9 +24,9 @@ it doesn't work at peaceful
 
 version is organized from `A`.`B`.`C` and Number counts up for each classification of items changed by the update
 
-`A`: if count up you should to renew World.
+`A`: if count up you should renew World.
 
-`B`: if count up you should to regenerate Config file.
+`B`: if count up you should regenerate Config file.
 
 `C`: nothing to do. you will replace only jar file.
 

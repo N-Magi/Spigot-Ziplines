@@ -4,7 +4,7 @@ it doesn't work at peaceful
 
 ## How To Install
 
- - Download plugin file from [Release](/Spigot-Ziplines/releases)
+ - Download plugin file from [Release](https://github.com/N-Magi/Spigot-Ziplines/releases/)
  - put file in your server plugins folder
  - then run!!
 

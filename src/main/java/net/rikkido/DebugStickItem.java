@@ -79,10 +79,6 @@ public class DebugStickItem implements IItemBase {
 
     public ShapedRecipe createRecipe(ItemStack item) {
         ShapedRecipe recipeZipline = new ShapedRecipe(DEBUG, item);
-        // recipeZipline.shape("D", "S");
-        // recipeZipline.setIngredient('D', Material.DIAMOND);
-        // recipeZipline.setIngredient('S', Material.STICK);
-
         var strs = new String[_recipeShape.size()];
         _recipeShape.toArray(strs);
         recipeZipline.shape(strs);

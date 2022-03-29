@@ -22,7 +22,6 @@ public class PathSlime {
 
     public PathSlime(@NotNull Entity slime) {
         if (slime.getType() == EntityType.SLIME)
-            // throw new Exception("Entity is not Slime");
             _slime = (Slime) slime;
     }
 

@@ -34,63 +34,6 @@ public class PlayerZipliningManager implements Listener {
 
         _speed = _plugin.config.ziplineConfig.Speed.value;
         _finish_Radius = _plugin.config.zipliningConfig.FinishRadius.value;
-
-        // new BukkitRunnable() {
-        // @Override
-        // public void run() {
-        // // zip中のプレイヤーのみ取得
-        // for (Player player : Bukkit.getOnlinePlayers()) {
-        // if (!DataManager.hasData(player)) {
-        // player.setGravity(true);
-        // continue;
-        // }
-        // if (DEBUG)
-        // _plugin.getLogger().info("beforedeserialize:" + player.getUniqueId());
-
-        // MovePlayer mp = DataManager.getData(player);
-
-        // if (DEBUG)
-        // _plugin.getLogger().info("beforeZipping:" + mp.player);
-        // MovePlayer res = playerZiplining(mp);
-
-        // player.sendActionBar(Component
-        // .text(String.format("`shit`キーで途中下車"))
-        // .color(TextColor.color(255, 255, 0)));
-
-        // // 終了時処理
-        // if (res.isfinished) {
-        // if (DEBUG)
-        // _plugin.getLogger().info("call zipline finish Process");
-        // var slime = _plugin.ziplineManager.getPathSlime(res.dst);
-        // if (slime == null) {
-        // stopPlayerZipping(player);
-        // continue;
-        // }
-        // var nextloc = culculateNextPath(slime, mp.oldlocs, player);
-        // if (nextloc == null) {
-        // stopPlayerZipping(player);
-        // continue;
-        // }
-        // // 継続処理(次点移動)
-        // player.setVelocity(new Vector(0, 0, 0));
-        // res.src = res.dst;
-        // res.dst = nextloc;
-
-        // res.oldlocs.add(nextloc);
-
-        // res.dst.setY(res.dst.getY());
-
-        // res.isfinished = false;
-        // res.length = res.dst.toVector().subtract(res.src.toVector());
-        // }
-        // if (DEBUG)
-        // _plugin.getLogger().info("call continue zipline process");
-        // DataManager.setData(player, res);
-        // continue;
-        // }
-
-        // }
-        // }.runTaskTimer(_plugin, 0, 1);
     }
 
     @EventHandler

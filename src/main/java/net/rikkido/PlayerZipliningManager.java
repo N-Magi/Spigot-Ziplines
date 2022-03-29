@@ -7,7 +7,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
-import org.bukkit.entity.Slime;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDropItemEvent;
@@ -34,6 +33,17 @@ public class PlayerZipliningManager implements Listener {
 
         _speed = _plugin.config.ziplineConfig.Speed.value;
         _finish_Radius = _plugin.config.zipliningConfig.FinishRadius.value;
+           
+        plugin.eventDispatcher.addDispatcher((s) -> {dispatchPlayerZipping(s);return true;});
+    }
+
+    public void dispatchPlayerZipping(Player player){
+        var zplayer = new ZiplinePlayer(player);
+        if (!zplayer.hasZippingData()) {
+            return;
+        }
+        var zippingEvent = new PlayerZippingEventHandler(player);
+        _plugin.getServer().getPluginManager().callEvent(zippingEvent);
     }
 
     @EventHandler

@@ -7,6 +7,9 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.TextColor;
+import net.rikkido.Event.PlayerHandZiplineItemHandler;
 import net.rikkido.Event.ZiplineEnterPlayerRangeHandler;
 
 public class ZiplineVisualizeManager implements Listener {
@@ -26,6 +29,41 @@ public class ZiplineVisualizeManager implements Listener {
                     stage = 0;
             }
         }.runTaskTimer(plugin, 0, 2);
+    }
+
+    @EventHandler
+    public void onPlayerHandZiplineItem(PlayerHandZiplineItemHandler event) {
+        var player = event.getPlayer();
+        var handItem = player.getInventory().getItemInMainHand();
+        var ziplineMaxRadius = _plugin.config.ziplineConfig.MaxRadius.value;
+
+        if (ziplineMaxRadius > 0)
+            if (_plugin.ziplimeitem.isZiplineFlaged(handItem)) {
+                var color = TextColor.color(255, 255, 0);
+                var distance = _plugin.ziplimeitem.getZiplineFlag(handItem).distance(player.getLocation());
+                if (distance > ziplineMaxRadius)
+                    color = TextColor.color(255, 0, 0);
+                player.sendActionBar(Component
+                        .text(String.format("距離 %.1f / %.1fブロック 開始地点を再度選択でキャンセル",
+                                distance,
+                                ziplineMaxRadius))
+                        .color(color));
+                return;
+            }
+
+        if (_plugin.ziplimeitem.isZiplineFlaged(handItem)) {
+
+            player.sendActionBar(Component
+                    .text(String.format("距離 %.1fブロック 開始地点を再度選択でキャンセル",
+                            _plugin.ziplimeitem.getZiplineFlag(handItem).distance(player.getLocation())))
+                    .color(TextColor.color(255, 255, 0)));
+            return;
+        }
+
+        player.sendActionBar(Component
+                .text("未設定")
+                .color(TextColor.color(255, 255, 0)));
+
     }
 
     @EventHandler

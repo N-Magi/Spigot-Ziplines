@@ -69,13 +69,13 @@ public class Zipline extends JavaPlugin implements Listener, CommandExecutor {
 
     @Override
     public void onEnable() {
+        eventDispatcher = new ZiplineEventDispatcher(this);
         config = new ConfigManager(this);
         ziplineManager = new ZiplineManager(this);
         zippingManager = new PlayerZipliningManager(this);
         visualManger = new ZiplineVisualizeManager(this);
         ziplimeitem = new ZiplineItem(this);
         debugitem = new DebugStickItem(this);
-        eventDispatcher = new ZiplineEventDispatcher(this);
         keys = new Namespacekey(this);
 
         Bukkit.getPluginManager().registerEvents(ziplineManager, this);

@@ -3,7 +3,6 @@ package net.rikkido;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -24,10 +23,8 @@ import org.bukkit.event.hanging.HangingBreakByEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
-import org.bukkit.scheduler.BukkitRunnable;
 
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.TextColor;
+import net.rikkido.Event.PlayerHandZiplineItemHandler;
 import net.rikkido.Event.ZiplineEnterPlayerRangeHandler;
 
 public class ZiplineManager implements Listener {
@@ -42,50 +39,37 @@ public class ZiplineManager implements Listener {
         _plugin = plugin;
         _ziplineMaxRadius = _plugin.config.ziplineConfig.MaxRadius.value;
 
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                // zip中のプレイヤーのみ取得
-                for (Player player : Bukkit.getOnlinePlayers()) {
-                    var handItem = player.getInventory().getItemInMainHand();
-                    if (handItem.getType() != Material.LEAD)
-                        continue;
-                    if (!plugin.ziplimeitem.isItem(handItem))
-                        continue;
+        _plugin.eventDispatcher.addDispatcher((p) -> {
+            return dispatchZiplineEnterPlayerRange(p);
+        });
+        _plugin.eventDispatcher.addDispatcher((p) -> {
+            return dispatchPlayerHandZipline(p);
+        });
 
-                    if (_ziplineMaxRadius > 0)
-                        if (plugin.ziplimeitem.isZiplineFlaged(handItem)) {
-                            var color = TextColor.color(255, 255, 0);
-                            var distance = plugin.ziplimeitem.getZiplineFlag(handItem).distance(player.getLocation());
-                            if (distance > _ziplineMaxRadius)
-                                color = TextColor.color(255, 0, 0);
-                            player.sendActionBar(Component
-                                    .text(String.format("距離 %.1f / %.1fブロック 開始地点を再度選択でキャンセル",
-                                            distance,
-                                            _ziplineMaxRadius))
-                                    .color(color));
-                            continue;
-                        }
-
-                    if (plugin.ziplimeitem.isZiplineFlaged(handItem)) {
-
-                        player.sendActionBar(Component
-                                .text(String.format("距離 %.1fブロック 開始地点を再度選択でキャンセル",
-                                        plugin.ziplimeitem.getZiplineFlag(handItem).distance(player.getLocation())))
-                                .color(TextColor.color(255, 255, 0)));
-                        continue;
-                    }
-
-                    player.sendActionBar(Component
-                            .text("未設定")
-                            .color(TextColor.color(255, 255, 0)));
-
-                }
-            }
-        }.runTaskTimer(_plugin, 0, 2);
 
     }
 
+    public boolean dispatchPlayerHandZipline(Player player) {
+        var handItem = player.getInventory().getItemInMainHand();
+        if (handItem.getType() != Material.LEAD)
+            return false;
+        if (!_plugin.ziplimeitem.isItem(handItem))
+            return false;
+        var event = new PlayerHandZiplineItemHandler(player);
+        _plugin.getServer().getPluginManager().callEvent(event);
+        return true;
+    }
+
+    public boolean dispatchZiplineEnterPlayerRange(Player a) {
+        var silmes = ZiplineManager.getPathSlimes(a.getLocation(), 20f, 20f, 20f);
+        if (silmes.size() < 1)
+            return false;
+        var event = new ZiplineEnterPlayerRangeHandler(a, silmes);
+        _plugin.getServer().getPluginManager().callEvent(event);
+        return true;
+    }
+
+    
     public void enableDebugMode(boolean flag) {
         DEBUG = flag;
     }
@@ -167,7 +151,7 @@ public class ZiplineManager implements Listener {
     public void onPathEnterPlayerRange(ZiplineEnterPlayerRangeHandler e) {
         for (var slime : e.getSlimes()) {
             var slimeLoc = slime.getSlime().getLocation();
-            var world =  slime.getSlime().getWorld();
+            var world = slime.getSlime().getWorld();
             var block = world.getBlockAt(slimeLoc);
             if (block.getType() == Material.OAK_FENCE)
                 continue;
@@ -271,18 +255,6 @@ public class ZiplineManager implements Listener {
         e.setCancelled(true);
     }
 
-    private static void slimeSet(Slime slime) {
-        slime.setCustomName(CUSTOM_NAME);
-        slime.setAI(false);
-        slime.setRemoveWhenFarAway(false);
-        slime.setInvulnerable(true);
-        slime.setSilent(true);
-        slime.setSize(1);
-        slime.setGravity(false);
-        slime.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY,
-                Integer.MAX_VALUE, 1, false, false));
-    }
-
     private Object[] spawnHitches(PathSlime[] slimes) {
         var res = new ArrayList<LeashHitch>();
         // どうせ消えるなら柵と同じ場所に生成させるようにする
@@ -324,7 +296,7 @@ public class ZiplineManager implements Listener {
         if (!dst_data.contains(spawnLocation))
             dst_data.add(spawnLocation);
         dst.setPathData(dst_data);
-        
+
         PathSlime[] res = { src, dst };
         return res;
     }

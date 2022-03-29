@@ -1,47 +1,37 @@
 package net.rikkido;
 
-import org.bukkit.scheduler.BukkitRunnable;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Function;
 
-import net.rikkido.Event.PlayerZippingEventHandler;
-import net.rikkido.Event.ZiplineEnterPlayerRangeHandler;
+import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitRunnable;
 
 public class ZiplineEventDispatcher {
 
     Zipline _zipline;
+    List<Function<Player,Boolean>> _dispatchers;
 
     public ZiplineEventDispatcher(Zipline zipline) {
         _zipline = zipline;
-
-        // @ Player Enter Zipline Leash Range
+        _dispatchers = new ArrayList<Function<Player,Boolean>>();
         new BukkitRunnable() {
             @Override
             public void run() {
-
-                for (var a : zipline.getServer().getOnlinePlayers()) {
-                    var silmes = ZiplineManager.getPathSlimes(a.getLocation(), 20f, 20f, 20f);
-                    if (silmes.size() < 1)
-                        continue;
-                    var event = new ZiplineEnterPlayerRangeHandler(a, silmes);
-                    zipline.getServer().getPluginManager().callEvent(event);
+                for (var p : zipline.getServer().getOnlinePlayers()) {
+                    for(var dis : _dispatchers){
+                        dis.apply(p);
+                    }
                 }
             };
         }.runTaskTimer(_zipline, 0, 1);
+    }
 
-        // @ Player Zipping
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                for (var player : zipline.getServer().getOnlinePlayers()) {
-                    var zplayer = new ZiplinePlayer(player);
-                    if (!zplayer.hasZippingData()) {
-                        continue;
-                    }
-                    var zippingEvent = new PlayerZippingEventHandler(player);
-                    zipline.getServer().getPluginManager().callEvent(zippingEvent);
-                }
-            }
+    public List<Function<Player,Boolean>> getDispatchers(){
+        return _dispatchers;
+    }
 
-        }.runTaskTimer(_zipline, 0, 1);
-
+    public void addDispatcher(Function<Player,Boolean> dispatcher){
+        _dispatchers.add(dispatcher);
     }
 }

@@ -32,6 +32,11 @@ public class ZiplineManager implements Listener {
 
     private Double _ziplineMaxRadius;
 
+    private String _fb67d9c77b48bf658f98b803d6cd1bf998b4bbbb;
+    private String _55529e374ffe480286e200ce5e9e8b2f6da16374;
+    private String _330f4f28ab1aa0eae41010179a49c8cdf994f63b;
+    private String _0168a7a2635f3369980e976c5a335fccf4e5732f;
+
     public ZiplineManager(Zipline plugin) {
         _plugin = plugin;
         _ziplineMaxRadius = _plugin.config.ziplineConfig.MaxRadius.value;
@@ -43,6 +48,14 @@ public class ZiplineManager implements Listener {
             return dispatchPlayerHandZipline(p);
         });
 
+        _fb67d9c77b48bf658f98b803d6cd1bf998b4bbbb = plugin.languageLoader
+                .getMessage("fb67d9c77b48bf658f98b803d6cd1bf998b4bbbb");
+        _55529e374ffe480286e200ce5e9e8b2f6da16374 = plugin.languageLoader
+                .getMessage("5529e374ffe480286e200ce5e9e8b2f6da16374");
+        _330f4f28ab1aa0eae41010179a49c8cdf994f63b = plugin.languageLoader
+                .getMessage("330f4f28ab1aa0eae41010179a49c8cdf994f63b");
+        _0168a7a2635f3369980e976c5a335fccf4e5732f = plugin.languageLoader
+                .getMessage("0168a7a2635f3369980e976c5a335fccf4e5732f");
 
     }
 
@@ -66,7 +79,6 @@ public class ZiplineManager implements Listener {
         return true;
     }
 
-    
     public void enableDebugMode(boolean flag) {
         DEBUG = flag;
     }
@@ -163,7 +175,9 @@ public class ZiplineManager implements Listener {
         if (block.getType() != Material.OAK_FENCE)
             return;
         if (!destoryPath(block.getLocation())) {
-            e.getPlayer().sendMessage("経路の削除に失敗しました。");
+            e.getPlayer().sendMessage(_fb67d9c77b48bf658f98b803d6cd1bf998b4bbbb);
+            // "経路の削除に失敗しました。"
+            // fb67d9c77b48bf658f98b803d6cd1bf998b4bbbb
         }
     }
 
@@ -338,10 +352,8 @@ public class ZiplineManager implements Listener {
         var items = player.getInventory().getItemInMainHand();
         if (items.getType() != Material.LEAD)
             return;
-        if (!_plugin.ziplimeitem.isItem(items)) {
-            player.sendMessage("バージョンアップによりレシピが変更されました。\nクラフトテーブルで、リードを鉄インゴットで挟み込むとアイテムが作成できます");
+        if (!_plugin.ziplimeitem.isItem(items))
             return;
-        }
 
         var world = player.getWorld();
         var dst_loc = clicked_block.getLocation().add(0.5, 0.25, 0.5);
@@ -369,18 +381,24 @@ public class ZiplineManager implements Listener {
         }
 
         if (diff.length() <= 3.0f) {
-            player.sendMessage("近距離での接続はできません。");
+            player.sendMessage(_55529e374ffe480286e200ce5e9e8b2f6da16374);
+            // 55529e374ffe480286e200ce5e9e8b2f6da16374
+            // ("近距離での接続はできません。"
             return;
         }
 
         var maxRadius = _ziplineMaxRadius;
         if (diff.length() >= maxRadius && maxRadius > 0) {
-            player.sendMessage(String.format("%.3fブロック以上の距離のラインは設置できません", maxRadius));
+            player.sendMessage(String.format(_330f4f28ab1aa0eae41010179a49c8cdf994f63b, maxRadius));
+            // 330f4f28ab1aa0eae41010179a49c8cdf994f63b
+            // "%.3fブロック以上の距離のラインは設置できません"
             return;
         }
 
         if (Material.OAK_FENCE != world.getBlockAt(src_loc).getType()) {
-            player.sendMessage("開始地点で何かが起きたようです 接続を削除します。");
+            player.sendMessage(_0168a7a2635f3369980e976c5a335fccf4e5732f);
+            // "開始地点で何かが起きたようです 接続を削除します。"
+            // 0168a7a2635f3369980e976c5a335fccf4e5732f
             _plugin.ziplimeitem.removeZiplineFlag(items);
             return;
         }
@@ -388,7 +406,6 @@ public class ZiplineManager implements Listener {
         var path = getPathSlime(src_loc);
         if (path != null)
             if (path.getPathData().contains(dst_loc)) {
-                player.sendMessage("二度付け禁止ダメ絶対, 経路消しとくよ");
                 _plugin.ziplimeitem.removeZiplineFlag(items);
                 return;
             }

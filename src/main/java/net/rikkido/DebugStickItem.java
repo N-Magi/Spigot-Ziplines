@@ -33,9 +33,25 @@ public class DebugStickItem implements IItemBase {
     private List<String> _recipeShape = new ArrayList<String>();
     private List<Map<String, String>> _itemMaps = new ArrayList<Map<String, String>>();
 
+    private String _abd539a5e7800bcae6b5f3e2559c7a6e92835a5d;//デバック棒
+    private String _7c60fa48abe6e46a830674d4148f7254bd54eaef;
+    private String _67a9bef09897a3e3e12338b0992123d12b86160d;
+    private String _758c94d4facf0c44fb2fece9ca42795bef425823;
+    private String _a951486ab204c54f75f1c3e7a4965ca698af6b80;
+    private String _3fab34b429f38db84ee86f7cfe34189d77ae3f07;
+    private String _a500580082225615f2358c1a97466e266109a282;
+
     public DebugStickItem(Zipline plugin) {
         DEBUG = new NamespacedKey(plugin, "debug");
         _plugin = plugin;
+
+        _abd539a5e7800bcae6b5f3e2559c7a6e92835a5d = plugin.languageLoader.getMessage("abd539a5e7800bcae6b5f3e2559c7a6e92835a5d");
+        _7c60fa48abe6e46a830674d4148f7254bd54eaef = plugin.languageLoader.getMessage("7c60fa48abe6e46a830674d4148f7254bd54eaef");
+        _67a9bef09897a3e3e12338b0992123d12b86160d = plugin.languageLoader.getMessage("67a9bef09897a3e3e12338b0992123d12b86160d");
+        _758c94d4facf0c44fb2fece9ca42795bef425823 = plugin.languageLoader.getMessage("758c94d4facf0c44fb2fece9ca42795bef425823");
+        _a951486ab204c54f75f1c3e7a4965ca698af6b80 = plugin.languageLoader.getMessage("a951486ab204c54f75f1c3e7a4965ca698af6b80");
+        _3fab34b429f38db84ee86f7cfe34189d77ae3f07 = plugin.languageLoader.getMessage("3fab34b429f38db84ee86f7cfe34189d77ae3f07");
+        _a500580082225615f2358c1a97466e266109a282 = plugin.languageLoader.getMessage("a500580082225615f2358c1a97466e266109a282");
 
         _recipeShape = _plugin.config.itemConfig.debugStickItemConfig.itemshapeConfig.value;
         _itemMaps = _plugin.config.itemConfig.debugStickItemConfig.itemPair.value;
@@ -44,6 +60,7 @@ public class DebugStickItem implements IItemBase {
         var recc = createRecipe(debugStick);
         plugin.getServer().addRecipe(recc);
 
+        
     }
 
     @EventHandler
@@ -72,7 +89,7 @@ public class DebugStickItem implements IItemBase {
         var meta = items.getItemMeta();
         meta.addEnchant(Enchantment.DURABILITY, 1, false);
         meta.getPersistentDataContainer().set(DEBUG, PersistentDataType.INTEGER, 1);
-        meta.setDisplayName(ChatColor.RESET + "" + ChatColor.GOLD + "デバッグ棒");
+        meta.setDisplayName(ChatColor.RESET + "" + ChatColor.GOLD + _abd539a5e7800bcae6b5f3e2559c7a6e92835a5d);
         items.setItemMeta(meta);
         return items;
     }
@@ -124,9 +141,13 @@ public class DebugStickItem implements IItemBase {
         text += "DEBUG";
         for (int i = 0; i < 24; i++)
             text += "=";
-        text += String.format("ブロック: %.3f, %.3f, %.3f @ %.3f, %.3f, %.3f\n", loc.getX(), loc.getY(), loc.getZ(), x, y,
+        text += String.format(_7c60fa48abe6e46a830674d4148f7254bd54eaef, loc.getX(), loc.getY(), loc.getZ(), x, y,
                 z);
-        text += String.format("付近のノード数: %d\n", slimes.size());
+                //7c60fa48abe6e46a830674d4148f7254bd54eaef
+                //"ブロック: %.3f, %.3f, %.3f @ %.3f, %.3f, %.3f\n"
+        text += String.format(_67a9bef09897a3e3e12338b0992123d12b86160d, slimes.size());
+                //67a9bef09897a3e3e12338b0992123d12b86160d
+                //"付近のノード数: %d\n"
 
         compB.append(text);
         text = "";
@@ -136,7 +157,9 @@ public class DebugStickItem implements IItemBase {
 
             var pathes = slime.getPathData();
 
-            compB.append(String.format("%s#%d 選択: %.3f, %.3f, %.3f %s\n UUID: ",
+            compB.append(String.format(_758c94d4facf0c44fb2fece9ca42795bef425823,
+            //758c94d4facf0c44fb2fece9ca42795bef425823
+            //"%s#%d 選択: %.3f, %.3f, %.3f %s\n UUID: "
                     ChatColor.GOLD,
                     slimes.indexOf(eslime),
                     slime.getSlime().getLocation().getX(),
@@ -149,10 +172,13 @@ public class DebugStickItem implements IItemBase {
                     .setClickEvent(new ClickEvent(Action.COPY_TO_CLIPBOARD, slime.getSlime().getUniqueId().toString()));
             compB.append(textComponent);
 
-            compB.append(String.format("\n 経路数: %d \n 設定されている経路\n", pathes.size()));
-
+            compB.append(String.format(_a951486ab204c54f75f1c3e7a4965ca698af6b80, pathes.size()));
+            //a951486ab204c54f75f1c3e7a4965ca698af6b80
+            //"\n 経路数: %d \n 設定されている経路\n"
             for (var path : pathes) {
-                compB.append(String.format("  # %d: x: %.3f, y: %.3f,z: %.3f, Exist?: %b \n", pathes.indexOf(path),
+                compB.append(String.format(_3fab34b429f38db84ee86f7cfe34189d77ae3f07, pathes.indexOf(path),
+                        //3fab34b429f38db84ee86f7cfe34189d77ae3f07
+                        //"  # %d: x: %.3f, y: %.3f,z: %.3f, Exist?: %b \n"
                         path.getX(),
                         path.getY(),
                         path.getZ(),
@@ -162,7 +188,9 @@ public class DebugStickItem implements IItemBase {
             // 現在の向きで選択される経路
             List<Location> a = new ArrayList<Location>();
             var next = _plugin.zippingManager.culculateNextPath(slime, a, player);
-            compB.append(String.format(" 選択されうる経路: # %d\n", pathes.indexOf(next)));
+            compB.append(String.format(_a500580082225615f2358c1a97466e266109a282, pathes.indexOf(next)));
+            //a500580082225615f2358c1a97466e266109a282
+            //" 選択されうる経路: # %d\n"
         }
         player.sendMessage(compB.create());
     }

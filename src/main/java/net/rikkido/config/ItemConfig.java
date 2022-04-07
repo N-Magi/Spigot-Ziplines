@@ -4,7 +4,7 @@ import org.bukkit.configuration.ConfigurationSection;
 
 public class ItemConfig {
 
-    private static String SECTION_ITEM = "item";
+    private static String SECTION_ITEM = "Item";
 
     public ZiplineItemConfig ziplineItemconf;
     public DebugStickItemConfig debugStickItemConfig;

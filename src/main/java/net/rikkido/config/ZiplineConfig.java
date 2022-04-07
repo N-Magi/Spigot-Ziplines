@@ -8,7 +8,7 @@ import org.yaml.snakeyaml.scanner.Constant;
 
 public class ZiplineConfig {
 
-    private static String SECTION_ZIPLINE = "zipline";
+    private static String SECTION_ZIPLINE = "Zipline";
 
     public Config<Double> Speed; // block per tick
     public Config<Double> MaxRadius; // negative value means infinity

@@ -1,9 +1,9 @@
-zipline:
+Zipline:
   speed: 1.0
   max_radius: -1.0
-ziplining:
+Ziplining:
   finizh_raduis: 0.5
-item:
+Item:
   ZiplineRecipe:
     ItemShape:
       - ILI
@@ -17,3 +17,5 @@ item:
     RecipeItem:
       - D: DIAMOND
       - S: STICK
+Language:
+  lang: ja

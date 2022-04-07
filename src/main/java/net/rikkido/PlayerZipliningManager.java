@@ -28,6 +28,9 @@ public class PlayerZipliningManager implements Listener {
     private Double _speed;
     private Double _finish_Radius;
 
+    private String _c226b8d6337c1fbfb8a19473221906ee0ede240a;
+    private String _ae6cd0dcc9d454123a5ea12c728c92e68013c63a;
+
     public PlayerZipliningManager(Zipline plugin) {
         _plugin = plugin;
 
@@ -35,6 +38,9 @@ public class PlayerZipliningManager implements Listener {
         _finish_Radius = _plugin.config.zipliningConfig.FinishRadius.value;
            
         plugin.eventDispatcher.addDispatcher((s) -> {dispatchPlayerZipping(s);return true;});
+
+        _c226b8d6337c1fbfb8a19473221906ee0ede240a = plugin.languageLoader.getMessage("c226b8d6337c1fbfb8a19473221906ee0ede240a");
+        _ae6cd0dcc9d454123a5ea12c728c92e68013c63a = plugin.languageLoader.getMessage("ae6cd0dcc9d454123a5ea12c728c92e68013c63a");
     }
 
     public void dispatchPlayerZipping(Player player){
@@ -56,7 +62,9 @@ public class PlayerZipliningManager implements Listener {
         MovePlayer res = playerZiplining(mp);
 
         player.getPlayer().sendActionBar(Component
-                .text(String.format("`shit`キーで途中下車"))
+                .text(String.format(_c226b8d6337c1fbfb8a19473221906ee0ede240a))
+                //c226b8d6337c1fbfb8a19473221906ee0ede240a
+                //"`shit`キーで途中下車"
                 .color(TextColor.color(255, 255, 0)));
 
         // 終了時処理
@@ -292,7 +300,9 @@ public class PlayerZipliningManager implements Listener {
 
             return nl;// ここあやういなー
         }
-        throw new NullPointerException("Path Slime PersistentDataContainerにデータが挿入されていません。");
+        throw new NullPointerException(_ae6cd0dcc9d454123a5ea12c728c92e68013c63a);
+        //"Path Slime PersistentDataContainerにデータが挿入されていません。"
+        //ae6cd0dcc9d454123a5ea12c728c92e68013c63a
     }
 
 }

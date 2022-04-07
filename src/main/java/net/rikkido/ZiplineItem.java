@@ -27,6 +27,8 @@ public class ZiplineItem implements IItemBase {
     private List<String> _recipeShape = new ArrayList<String>();
     private List<Map<String, String>> _itemMaps = new ArrayList<Map<String, String>>();
 
+    private String _701d77aa116dcbbabe64c121f5d40ce4818ecb96;
+
     public ZiplineItem(Zipline plugin) {
         _plugin = plugin;
 
@@ -40,6 +42,7 @@ public class ZiplineItem implements IItemBase {
         var recipe = createRecipe(zipline);
         plugin.getServer().addRecipe(recipe);
 
+        _701d77aa116dcbbabe64c121f5d40ce4818ecb96 = plugin.languageLoader.getMessage("701d77aa116dcbbabe64c121f5d40ce4818ecb96");
     }
 
     public ItemStack createItem() {
@@ -47,7 +50,9 @@ public class ZiplineItem implements IItemBase {
         var meta = item.getItemMeta();
         meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
         meta.addEnchant(Enchantment.DURABILITY, 1, false);
-        meta.setDisplayName(ChatColor.RESET + "" + ChatColor.GOLD + "ジップライン");
+        meta.setDisplayName(ChatColor.RESET + "" + ChatColor.GOLD + _701d77aa116dcbbabe64c121f5d40ce4818ecb96);
+        //"ジップライン"
+        //701d77aa116dcbbabe64c121f5d40ce4818ecb96
         meta.getPersistentDataContainer().set(ITEM_ZIPLINE, PersistentDataType.INTEGER, 1);
         item.setItemMeta(meta);
         return item;

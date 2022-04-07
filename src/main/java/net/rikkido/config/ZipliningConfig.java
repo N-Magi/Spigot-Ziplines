@@ -4,7 +4,7 @@ import org.bukkit.configuration.ConfigurationSection;
 
 public class ZipliningConfig {
 
-    private static String SECTION_ZIPLINING = "ziplining";
+    private static String SECTION_ZIPLINING = "Ziplining";
 
     public Config<Double> FinishRadius;
 

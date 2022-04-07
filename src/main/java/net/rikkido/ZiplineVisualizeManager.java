@@ -19,8 +19,15 @@ public class ZiplineVisualizeManager implements Listener {
     int stage = 0;
     static Double STAGEMAX = 20.0;
 
+    private String _c4e41d905d0a05e6bd8aa28144032d2a7cec39ef;
+    private String _d6ea67a44b370d4f383cc8fefaba1980fd9b0fe3;
+
     public ZiplineVisualizeManager(Zipline plugin) {
         _plugin = plugin;
+
+        _c4e41d905d0a05e6bd8aa28144032d2a7cec39ef = plugin.languageLoader.getMessage("c4e41d905d0a05e6bd8aa28144032d2a7cec39ef");
+        _d6ea67a44b370d4f383cc8fefaba1980fd9b0fe3 = plugin.languageLoader.getMessage("d6ea67a44b370d4f383cc8fefaba1980fd9b0fe3");
+
         new BukkitRunnable() {
             @Override
             public void run() {
@@ -44,7 +51,9 @@ public class ZiplineVisualizeManager implements Listener {
                 if (distance > ziplineMaxRadius)
                     color = TextColor.color(255, 0, 0);
                 player.sendActionBar(Component
-                        .text(String.format("距離 %.1f / %.1fブロック 開始地点を再度選択でキャンセル",
+                        .text(String.format(_c4e41d905d0a05e6bd8aa28144032d2a7cec39ef,
+                        //c4e41d905d0a05e6bd8aa28144032d2a7cec39ef
+                        //"距離 %.1f / %.1fブロック 開始地点を再度選択でキャンセル"
                                 distance,
                                 ziplineMaxRadius))
                         .color(color));
@@ -54,7 +63,9 @@ public class ZiplineVisualizeManager implements Listener {
         if (_plugin.ziplimeitem.isZiplineFlaged(handItem)) {
 
             player.sendActionBar(Component
-                    .text(String.format("距離 %.1fブロック 開始地点を再度選択でキャンセル",
+                    .text(String.format(_d6ea67a44b370d4f383cc8fefaba1980fd9b0fe3,
+                    //d6ea67a44b370d4f383cc8fefaba1980fd9b0fe3
+                    //"距離 %.1fブロック 開始地点を再度選択でキャンセル"
                             _plugin.ziplimeitem.getZiplineFlag(handItem).distance(player.getLocation())))
                     .color(TextColor.color(255, 255, 0)));
             return;

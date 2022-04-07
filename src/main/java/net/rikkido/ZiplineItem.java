@@ -1,7 +1,6 @@
 package net.rikkido;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -11,7 +10,6 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.Recipe;
 import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.persistence.PersistentDataType;
 
@@ -24,13 +22,16 @@ public class ZiplineItem implements IItemBase {
     public ItemStack debugStick;
 
     public static NamespacedKey ITEM_ZIPLINE;
+    static NamespacedKey KEY;
 
     private List<String> _recipeShape = new ArrayList<String>();
     private List<Map<String, String>> _itemMaps = new ArrayList<Map<String, String>>();
 
     public ZiplineItem(Zipline plugin) {
         _plugin = plugin;
+
         ITEM_ZIPLINE = new NamespacedKey(plugin, "itemzipline");
+        KEY = new NamespacedKey(plugin, "loc");
 
         _recipeShape = _plugin.config.itemConfig.ziplineItemconf.itemshapeConfig.value;
         _itemMaps = _plugin.config.itemConfig.ziplineItemconf.itemPair.value;
@@ -60,11 +61,11 @@ public class ZiplineItem implements IItemBase {
         recipeZipline.shape(strs);
         _plugin.getLogger().info(strs[0]);
         for (var map : _itemMaps) {
-            for(Map.Entry<String,String> e : map.entrySet()){
+            for (Map.Entry<String, String> e : map.entrySet()) {
                 char c = e.getKey().toCharArray()[0];
                 recipeZipline.setIngredient(c, Material.getMaterial(e.getValue()));
             }
-            
+
         }
         return recipeZipline;
     }
@@ -91,19 +92,35 @@ public class ZiplineItem implements IItemBase {
 
     // ZIPLINE FLAG CRUD
     public void setZiplineFlag(ItemStack zipline, Location loc) {
-        DataManager.setData(zipline, loc);
+        var itemMeta = zipline.getItemMeta();
+        itemMeta.getPersistentDataContainer().set(KEY, PersistentDataType.BYTE_ARRAY,
+                BukkitContainerSerializer.serialize(loc));
+        zipline.setItemMeta(itemMeta);
+        // DataManager.setData(zipline, loc);
     }
 
     public boolean isZiplineFlaged(ItemStack zipline) {
-        return DataManager.hasData(zipline);
+        return zipline.getItemMeta().getPersistentDataContainer().has(KEY, PersistentDataType.BYTE_ARRAY);
     }
 
     public Location getZiplineFlag(ItemStack zipline) {
-        return DataManager.getData(zipline);
+        if (isZiplineFlaged(zipline)) {
+            var res = BukkitContainerSerializer.deserialize(
+                    zipline.getItemMeta().getPersistentDataContainer().get(KEY, PersistentDataType.BYTE_ARRAY));
+            if (res != null)
+                return (Location) res;
+            removeZiplineFlag(zipline);
+        }
+        return null;
     }
 
     public void removeZiplineFlag(ItemStack zipline) {
-        DataManager.removeData(zipline);
+        if (isZiplineFlaged(zipline)) {
+            var meta = zipline.getItemMeta();
+            meta.getPersistentDataContainer().remove(KEY);
+            zipline.setItemMeta(meta);
+            return;
+        }
     }
 
 }

@@ -23,7 +23,9 @@ public class Zipline extends JavaPlugin implements Listener, CommandExecutor {
     protected ZiplineVisualizeManager visualManger;
     protected ZiplineItem ziplimeitem;
     protected DebugStickItem debugitem;
-    protected ConfigManager config;
+    public ConfigManager config;
+    public ZiplineEventDispatcher eventDispatcher;
+    public Namespacekey keys;
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
@@ -41,13 +43,16 @@ public class Zipline extends JavaPlugin implements Listener, CommandExecutor {
             var p = (Player) sender;
             if (args.length == 2) {
                 var id = args[1];
+                
                 var slime = (Slime) p.getWorld().getEntity(UUID.fromString(id));
                 if (slime == null) {
                     p.sendMessage(String.format("%sは存在しません", id));
                     return false;
                 }
-                if (DataManager.hasData(slime)) {
-                    slime.remove();
+                var pslime = new PathSlime(slime);
+
+                if (pslime.hasPathData()) {
+                    pslime.removePathData();
                 }
                 p.sendMessage(String.format("%sを削除しました", id));
                 return true;
@@ -64,19 +69,18 @@ public class Zipline extends JavaPlugin implements Listener, CommandExecutor {
 
     @Override
     public void onEnable() {
+        eventDispatcher = new ZiplineEventDispatcher(this);
         config = new ConfigManager(this);
         ziplineManager = new ZiplineManager(this);
         zippingManager = new PlayerZipliningManager(this);
         visualManger = new ZiplineVisualizeManager(this);
         ziplimeitem = new ZiplineItem(this);
         debugitem = new DebugStickItem(this);
-        
+        keys = new Namespacekey(this);
 
         Bukkit.getPluginManager().registerEvents(ziplineManager, this);
         Bukkit.getPluginManager().registerEvents(zippingManager, this);
         Bukkit.getPluginManager().registerEvents(visualManger, this);
         Bukkit.getPluginManager().registerEvents(debugitem, this);
-        DataManager.setValues(this);
-
     }
 }

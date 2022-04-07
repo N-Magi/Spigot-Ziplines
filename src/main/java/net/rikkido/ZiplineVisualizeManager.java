@@ -3,12 +3,14 @@ package net.rikkido;
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Particle;
-import org.bukkit.entity.Slime;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import net.ZiplineEnterPlayerRangeHandler;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.TextColor;
+import net.rikkido.Event.PlayerHandZiplineItemHandler;
+import net.rikkido.Event.ZiplineEnterPlayerRangeHandler;
 
 public class ZiplineVisualizeManager implements Listener {
 
@@ -25,25 +27,52 @@ public class ZiplineVisualizeManager implements Listener {
                 stage++;
                 if (stage >= STAGEMAX)
                     stage = 0;
-                for (var a : plugin.getServer().getOnlinePlayers()) {
-                    var silmes = ZiplineManager.getPathSlimes(a.getLocation(), 20f, 20f, 20f);
-                    if (silmes.size() < 1)
-                        continue;
-                    var event = new ZiplineEnterPlayerRangeHandler(a, silmes);
-                    _plugin.getServer().getPluginManager().callEvent(event);
-                }
             }
         }.runTaskTimer(plugin, 0, 2);
+    }
+
+    @EventHandler
+    public void onPlayerHandZiplineItem(PlayerHandZiplineItemHandler event) {
+        var player = event.getPlayer();
+        var handItem = player.getInventory().getItemInMainHand();
+        var ziplineMaxRadius = _plugin.config.ziplineConfig.MaxRadius.value;
+
+        if (ziplineMaxRadius > 0)
+            if (_plugin.ziplimeitem.isZiplineFlaged(handItem)) {
+                var color = TextColor.color(255, 255, 0);
+                var distance = _plugin.ziplimeitem.getZiplineFlag(handItem).distance(player.getLocation());
+                if (distance > ziplineMaxRadius)
+                    color = TextColor.color(255, 0, 0);
+                player.sendActionBar(Component
+                        .text(String.format("距離 %.1f / %.1fブロック 開始地点を再度選択でキャンセル",
+                                distance,
+                                ziplineMaxRadius))
+                        .color(color));
+                return;
+            }
+
+        if (_plugin.ziplimeitem.isZiplineFlaged(handItem)) {
+
+            player.sendActionBar(Component
+                    .text(String.format("距離 %.1fブロック 開始地点を再度選択でキャンセル",
+                            _plugin.ziplimeitem.getZiplineFlag(handItem).distance(player.getLocation())))
+                    .color(TextColor.color(255, 255, 0)));
+            return;
+        }
+
+        player.sendActionBar(Component
+                .text("未設定")
+                .color(TextColor.color(255, 255, 0)));
+
     }
 
     @EventHandler
     public void onPlayerEnterRange(ZiplineEnterPlayerRangeHandler event) {
         var slimes = event.getSlimes();
         for (var slime : slimes) {
-            var s = (Slime) slime;
-            var nextloc = DataManager.getData((Slime) slime);
+            var nextloc = slime.getPathData();
             for (var next : nextloc) {
-                spanwParticleLines(slime.getLocation(), next, stage);
+                spanwParticleLines(slime.getSlime().getLocation(), next, stage);
             }
         }
     }

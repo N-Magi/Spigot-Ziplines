@@ -72,7 +72,7 @@
         },
         {
             "id": "55529e374ffe480286e200ce5e9e8b2f6da16374",
-            "msg": "Can't connect in short distance 近距離での接続はできません。",
+            "msg": "Can't connect in short distance",
             "_desc": "短距離での接続の禁止message"
         },
         {

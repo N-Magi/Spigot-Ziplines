@@ -8,6 +8,13 @@ it doesn't work at peaceful
  - put file in your server plugins folder
  - then run!!
 
+## How To Play
+
+ - In default, ` Zipline ` Can Make by Leash and 2 irons at Crafting Table.
+ - In default, ` debug stick ` Can make by Stick and Diamond in Crafting Table. (similar to crate Torch)
+ - ` Zipline ` can interact to ork fences.
+ 
+
 ## Settings
 
 |Data|Explain|Unit|

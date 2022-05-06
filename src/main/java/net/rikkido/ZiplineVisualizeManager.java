@@ -21,12 +21,14 @@ public class ZiplineVisualizeManager implements Listener {
 
     private String _c4e41d905d0a05e6bd8aa28144032d2a7cec39ef;
     private String _d6ea67a44b370d4f383cc8fefaba1980fd9b0fe3;
+    private String _4113d1c0a79c0d1e5ec309771aeca9846ac72326;
 
     public ZiplineVisualizeManager(Zipline plugin) {
         _plugin = plugin;
 
         _c4e41d905d0a05e6bd8aa28144032d2a7cec39ef = plugin.languageLoader.getMessage("c4e41d905d0a05e6bd8aa28144032d2a7cec39ef");
         _d6ea67a44b370d4f383cc8fefaba1980fd9b0fe3 = plugin.languageLoader.getMessage("d6ea67a44b370d4f383cc8fefaba1980fd9b0fe3");
+        _4113d1c0a79c0d1e5ec309771aeca9846ac72326 = plugin.languageLoader.getMessage("4113d1c0a79c0d1e5ec309771aeca9846ac72326");
 
         new BukkitRunnable() {
             @Override
@@ -72,7 +74,9 @@ public class ZiplineVisualizeManager implements Listener {
         }
 
         player.sendActionBar(Component
-                .text("未設定")
+                .text(_4113d1c0a79c0d1e5ec309771aeca9846ac72326)
+                //4113d1c0a79c0d1e5ec309771aeca9846ac72326
+                //未設定
                 .color(TextColor.color(255, 255, 0)));
 
     }

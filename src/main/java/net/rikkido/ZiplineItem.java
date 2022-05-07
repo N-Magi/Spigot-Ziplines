@@ -35,6 +35,8 @@ public class ZiplineItem implements IItemBase {
         ITEM_ZIPLINE = new NamespacedKey(plugin, "itemzipline");
         KEY = new NamespacedKey(plugin, "loc");
 
+        _701d77aa116dcbbabe64c121f5d40ce4818ecb96 = plugin.languageLoader.getMessage("701d77aa116dcbbabe64c121f5d40ce4818ecb96");
+
         _recipeShape = _plugin.config.itemConfig.ziplineItemconf.itemshapeConfig.value;
         _itemMaps = _plugin.config.itemConfig.ziplineItemconf.itemPair.value;
 
@@ -42,7 +44,7 @@ public class ZiplineItem implements IItemBase {
         var recipe = createRecipe(zipline);
         plugin.getServer().addRecipe(recipe);
 
-        _701d77aa116dcbbabe64c121f5d40ce4818ecb96 = plugin.languageLoader.getMessage("701d77aa116dcbbabe64c121f5d40ce4818ecb96");
+        
     }
 
     public ItemStack createItem() {

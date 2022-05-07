@@ -162,7 +162,7 @@ public class ZiplineManager implements Listener {
             var slimeLoc = slime.getSlime().getLocation();
             var world = slime.getSlime().getWorld();
             var block = world.getBlockAt(slimeLoc);
-            if (block.getType() == Material.OAK_FENCE)
+            if (isFenceItem(block.getType()))
                 continue;
             destoryPath(block.getLocation());
         }
@@ -172,7 +172,7 @@ public class ZiplineManager implements Listener {
     @EventHandler
     public void onPlayerBreakPathFence(BlockBreakEvent e) {
         var block = e.getBlock();
-        if (block.getType() != Material.OAK_FENCE)
+        if (!isFenceItem(block.getType()))
             return;
         if (!destoryPath(block.getLocation())) {
             e.getPlayer().sendMessage(_fb67d9c77b48bf658f98b803d6cd1bf998b4bbbb);
@@ -322,12 +322,25 @@ public class ZiplineManager implements Listener {
         return slime;
     }
 
+    public boolean isFenceItem(Material material) {
+        if (Material.OAK_FENCE == material ||
+                Material.BIRCH_FENCE == material ||
+                Material.ACACIA_FENCE == material ||
+                Material.JUNGLE_FENCE == material ||
+                Material.SPRUCE_FENCE == material ||
+                Material.WARPED_FENCE == material ||
+                Material.CRIMSON_FENCE == material ||
+                Material.DARK_OAK_FENCE == material)
+            return true;
+        return false;
+    }
+
     @EventHandler
     public void onInteractByZiplineItem(PlayerInteractEvent event) {
         if (event.getAction() != Action.RIGHT_CLICK_BLOCK)
             return;
         var clicked_block = event.getClickedBlock();
-        if (clicked_block.getType() != Material.OAK_FENCE)
+        if (!isFenceItem(clicked_block.getType()))
             return;
         var player = event.getPlayer();
         var items = player.getInventory().getItemInMainHand();
@@ -395,7 +408,7 @@ public class ZiplineManager implements Listener {
             return;
         }
 
-        if (Material.OAK_FENCE != world.getBlockAt(src_loc).getType()) {
+        if (!isFenceItem(world.getBlockAt(src_loc).getType())) {
             player.sendMessage(_0168a7a2635f3369980e976c5a335fccf4e5732f);
             // "開始地点で何かが起きたようです 接続を削除します。"
             // 0168a7a2635f3369980e976c5a335fccf4e5732f

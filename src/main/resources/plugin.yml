@@ -1,10 +1,33 @@
 main: net.rikkido.Zipline
 name: ziplines
-version: 0.1
+version: "0.2"
 api: 1.18.1
 api-version: 1.18
 commands:
   zipline:
-    description: ZipLineCommand
-    permission: op 
-    usage: run command with -help argument
+    description: ziplne Message
+    permission: Zipline.Command
+    permission-message: "you dont have enough permission to do this"
+  zipline DEBUG:
+    description: drop DEBUG STICK
+    permission: Zipline.Command.DEBUG
+    permission-message: "you dont have enough permission to do this"
+  zipline delete:
+    description: force delete Zipline Node (Zipline item wasn't drop)
+    permission: Zipline.Command.delete
+    permission-message: "you dont have enough permission to do this"
+premissions:
+  Zipline.*:
+    children:
+      Zipline.Command: true
+    description: Ziplne Plugin
+    default: op
+  Zipline.Command:
+    cildren:
+      Zipline.Command.DEBUG: true
+      Zipline.Command.delete: true
+    default: op
+  Ziplne.Command.DEBUG:
+    default: op
+  Zipline.Command.delete:
+    default: op

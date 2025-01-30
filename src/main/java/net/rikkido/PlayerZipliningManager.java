@@ -209,7 +209,7 @@ public class PlayerZipliningManager implements Listener {
 
         var entity = e.getRightClicked();
         var zipplayer = new ZiplinePlayer(e.getPlayer());
-        if (entity.getType() == EntityType.LEASH_HITCH) {
+        if (entity.getType() == EntityType.LEASH_KNOT) {
             e.setCancelled(true);
             if (DEBUG)
                 _plugin.getLogger().info("RopeClicked Hitch");

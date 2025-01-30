@@ -39,14 +39,22 @@ public class Zipline extends JavaPlugin implements Listener, CommandExecutor {
         if (args.length < 1)
             return false;
         var arg = args[0];
+        
         if (arg == null)
             return false;
-        if (arg.equals("DEBUG")) {
+        if (arg.equals("debug")) {
+            if(!sender.hasPermission("Zipline.Command.DEBUG")){
+                return false;
+            }
             var p = (Player) sender;
             debugitem.dropItem(p.getLocation(), 1);
+            p.sendMessage("DEGUB item was Dropped");
         }
 
         if (arg.equals(("delete"))) {
+            if(!sender.hasPermission("Zipline.Command.delete")){
+                return false;
+            }
             var p = (Player) sender;
             if (args.length == 2) {
                 var id = args[1];
@@ -63,6 +71,7 @@ public class Zipline extends JavaPlugin implements Listener, CommandExecutor {
                 if (pslime.hasPathData()) {
                     pslime.removePathData();
                 }
+                pslime.getSlime().remove();
                 p.sendMessage(String.format(_630b3613a397fea038fd3e157f174189dd4b56fb, id));
                 // 630b3613a397fea038fd3e157f174189dd4b56fb
                 //"%sを削除しました"

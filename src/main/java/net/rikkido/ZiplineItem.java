@@ -13,6 +13,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.persistence.PersistentDataType;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.TextColor;
 import net.md_5.bungee.api.ChatColor;
 
 public class ZiplineItem implements IItemBase {
@@ -51,8 +53,9 @@ public class ZiplineItem implements IItemBase {
         var item = new ItemStack(Material.LEAD);
         var meta = item.getItemMeta();
         meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-        meta.addEnchant(Enchantment.DURABILITY, 1, false);
-        meta.setDisplayName(ChatColor.RESET + "" + ChatColor.GOLD + _701d77aa116dcbbabe64c121f5d40ce4818ecb96);
+        meta.addEnchant(Enchantment.UNBREAKING, 1, false);
+        meta.displayName(Component.text(_701d77aa116dcbbabe64c121f5d40ce4818ecb96).color(TextColor.fromHexString("FFAA00")));
+        //meta.setDisplayName(ChatColor.RESET + "" + ChatColor.GOLD + _701d77aa116dcbbabe64c121f5d40ce4818ecb96);
         //"ジップライン"
         //701d77aa116dcbbabe64c121f5d40ce4818ecb96
         meta.getPersistentDataContainer().set(ITEM_ZIPLINE, PersistentDataType.INTEGER, 1);

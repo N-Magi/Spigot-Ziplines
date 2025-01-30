@@ -113,7 +113,7 @@ public class ZiplineVisualizeManager implements Listener {
         for (var a = count * (progress - one); a <= blockPerProgress; a += 1 / particlePerBlock) {
             var aa = vec.clone().multiply(a); // ax
             var particlePoint = destination.clone().add(aa); // + b
-            world.spawnParticle(Particle.REDSTONE, particlePoint, 1, opt);
+            world.spawnParticle(Particle.DUST, particlePoint, 1, opt);
         }
     }
 

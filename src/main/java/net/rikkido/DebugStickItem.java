@@ -15,12 +15,21 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.persistence.PersistentDataType;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.Unmodifiable;
 
-import net.md_5.bungee.api.ChatColor;
-import net.md_5.bungee.api.chat.ClickEvent;
-import net.md_5.bungee.api.chat.ClickEvent.Action;
-import net.md_5.bungee.api.chat.ComponentBuilder;
-import net.md_5.bungee.api.chat.TextComponent;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.ComponentLike;
+import net.kyori.adventure.text.format.Style;
+import net.kyori.adventure.text.format.TextColor;
+import net.kyori.adventure.text.event.*;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
+// import net.md_5.bungee.api.ChatColor;
+// import net.md_5.bungee.api.chat.ClickEvent;
+// import net.md_5.bungee.api.chat.ClickEvent.Action;
+// import net.md_5.bungee.api.chat.ComponentBuilder;
+// import net.md_5.bungee.api.chat.TextComponent;
 
 public class DebugStickItem implements IItemBase {
 
@@ -33,7 +42,7 @@ public class DebugStickItem implements IItemBase {
     private List<String> _recipeShape = new ArrayList<String>();
     private List<Map<String, String>> _itemMaps = new ArrayList<Map<String, String>>();
 
-    private String _abd539a5e7800bcae6b5f3e2559c7a6e92835a5d;//デバック棒
+    private String _abd539a5e7800bcae6b5f3e2559c7a6e92835a5d;// デバック棒
     private String _7c60fa48abe6e46a830674d4148f7254bd54eaef;
     private String _67a9bef09897a3e3e12338b0992123d12b86160d;
     private String _758c94d4facf0c44fb2fece9ca42795bef425823;
@@ -45,13 +54,20 @@ public class DebugStickItem implements IItemBase {
         DEBUG = new NamespacedKey(plugin, "debug");
         _plugin = plugin;
 
-        _abd539a5e7800bcae6b5f3e2559c7a6e92835a5d = plugin.languageLoader.getMessage("abd539a5e7800bcae6b5f3e2559c7a6e92835a5d");
-        _7c60fa48abe6e46a830674d4148f7254bd54eaef = plugin.languageLoader.getMessage("7c60fa48abe6e46a830674d4148f7254bd54eaef");
-        _67a9bef09897a3e3e12338b0992123d12b86160d = plugin.languageLoader.getMessage("67a9bef09897a3e3e12338b0992123d12b86160d");
-        _758c94d4facf0c44fb2fece9ca42795bef425823 = plugin.languageLoader.getMessage("758c94d4facf0c44fb2fece9ca42795bef425823");
-        _a951486ab204c54f75f1c3e7a4965ca698af6b80 = plugin.languageLoader.getMessage("a951486ab204c54f75f1c3e7a4965ca698af6b80");
-        _3fab34b429f38db84ee86f7cfe34189d77ae3f07 = plugin.languageLoader.getMessage("3fab34b429f38db84ee86f7cfe34189d77ae3f07");
-        _a500580082225615f2358c1a97466e266109a282 = plugin.languageLoader.getMessage("a500580082225615f2358c1a97466e266109a282");
+        _abd539a5e7800bcae6b5f3e2559c7a6e92835a5d = plugin.languageLoader
+                .getMessage("abd539a5e7800bcae6b5f3e2559c7a6e92835a5d");
+        _7c60fa48abe6e46a830674d4148f7254bd54eaef = plugin.languageLoader
+                .getMessage("7c60fa48abe6e46a830674d4148f7254bd54eaef");
+        _67a9bef09897a3e3e12338b0992123d12b86160d = plugin.languageLoader
+                .getMessage("67a9bef09897a3e3e12338b0992123d12b86160d");
+        _758c94d4facf0c44fb2fece9ca42795bef425823 = plugin.languageLoader
+                .getMessage("758c94d4facf0c44fb2fece9ca42795bef425823");
+        _a951486ab204c54f75f1c3e7a4965ca698af6b80 = plugin.languageLoader
+                .getMessage("a951486ab204c54f75f1c3e7a4965ca698af6b80");
+        _3fab34b429f38db84ee86f7cfe34189d77ae3f07 = plugin.languageLoader
+                .getMessage("3fab34b429f38db84ee86f7cfe34189d77ae3f07");
+        _a500580082225615f2358c1a97466e266109a282 = plugin.languageLoader
+                .getMessage("a500580082225615f2358c1a97466e266109a282");
 
         _recipeShape = _plugin.config.itemConfig.debugStickItemConfig.itemshapeConfig.value;
         _itemMaps = _plugin.config.itemConfig.debugStickItemConfig.itemPair.value;
@@ -60,7 +76,6 @@ public class DebugStickItem implements IItemBase {
         var recc = createRecipe(debugStick);
         plugin.getServer().addRecipe(recc);
 
-        
     }
 
     @EventHandler
@@ -87,9 +102,17 @@ public class DebugStickItem implements IItemBase {
     public ItemStack createItem() {
         var items = new ItemStack(Material.STICK);
         var meta = items.getItemMeta();
-        meta.addEnchant(Enchantment.DURABILITY, 1, false);
+        var component = Component.text(_abd539a5e7800bcae6b5f3e2559c7a6e92835a5d);
+        component.color(TextColor.fromHexString("#FFAA00"));
+        // PlainTextComponentSerializer.plainText().serialize(new
+        // StringBuilder(_abd539a5e7800bcae6b5f3e2559c7a6e92835a5d), component);
+        // var t_component = new TextComponent(ChatColor.RESET + "" + ChatColor.GOLD +
+        // _abd539a5e7800bcae6b5f3e2559c7a6e92835a5d);
+        meta.addEnchant(Enchantment.UNBREAKING, 1, false);
         meta.getPersistentDataContainer().set(DEBUG, PersistentDataType.INTEGER, 1);
-        meta.setDisplayName(ChatColor.RESET + "" + ChatColor.GOLD + _abd539a5e7800bcae6b5f3e2559c7a6e92835a5d);
+        meta.displayName(component);
+        // meta.setDisplayName(ChatColor.RESET + "" + ChatColor.GOLD +
+        // _abd539a5e7800bcae6b5f3e2559c7a6e92835a5d);
         items.setItemMeta(meta);
         return items;
     }
@@ -133,7 +156,8 @@ public class DebugStickItem implements IItemBase {
     public void showEntitys(Player player, Location loc, float x, float y, float z) {
         // 設定されている経路情報
         var slimes = ZiplineManager.getPathSlimes(loc, x, y, z);
-        var compB = new ComponentBuilder();
+        var component = Component.text();
+        // var compB = new ComponentBuilder();
         var text = "";
 
         for (int i = 0; i < 24; i++)
@@ -143,13 +167,14 @@ public class DebugStickItem implements IItemBase {
             text += "=";
         text += String.format(_7c60fa48abe6e46a830674d4148f7254bd54eaef, loc.getX(), loc.getY(), loc.getZ(), x, y,
                 z);
-                //7c60fa48abe6e46a830674d4148f7254bd54eaef
-                //"ブロック: %.3f, %.3f, %.3f @ %.3f, %.3f, %.3f\n"
+        // 7c60fa48abe6e46a830674d4148f7254bd54eaef
+        // "ブロック: %.3f, %.3f, %.3f @ %.3f, %.3f, %.3f\n"
         text += String.format(_67a9bef09897a3e3e12338b0992123d12b86160d, slimes.size());
-                //67a9bef09897a3e3e12338b0992123d12b86160d
-                //"付近のノード数: %d\n"
+        // 67a9bef09897a3e3e12338b0992123d12b86160d
+        // "付近のノード数: %d\n"
 
-        compB.append(text);
+        // compB.append(text);
+        component.append(Component.text(text));
         text = "";
 
         for (var eslime : slimes) {
@@ -157,42 +182,71 @@ public class DebugStickItem implements IItemBase {
 
             var pathes = slime.getPathData();
 
-            compB.append(String.format(_758c94d4facf0c44fb2fece9ca42795bef425823,
-            //758c94d4facf0c44fb2fece9ca42795bef425823
-            //"%s#%d 選択: %.3f, %.3f, %.3f %s\n UUID: "
-                    ChatColor.GOLD,
+            // compB.append(String.format(_758c94d4facf0c44fb2fece9ca42795bef425823,
+            // //758c94d4facf0c44fb2fece9ca42795bef425823
+            // //"%s#%d 選択: %.3f, %.3f, %.3f %s\n UUID: "
+            // ChatColor.GOLD,
+            // slimes.indexOf(eslime),
+            // slime.getSlime().getLocation().getX(),
+            // slime.getSlime().getLocation().getY(),
+            // slime.getSlime().getLocation().getZ(),
+            // ChatColor.WHITE));
+
+            component.append(Component.text(String.format(_758c94d4facf0c44fb2fece9ca42795bef425823,
+                    // 758c94d4facf0c44fb2fece9ca42795bef425823
+                    // "%s#%d 選択: %.3f, %.3f, %.3f %s\n UUID: "
                     slimes.indexOf(eslime),
                     slime.getSlime().getLocation().getX(),
                     slime.getSlime().getLocation().getY(),
-                    slime.getSlime().getLocation().getZ(),
-                    ChatColor.WHITE));
+                    slime.getSlime().getLocation().getZ())).color(TextColor.fromHexString("#FFAA00")));
 
-            var textComponent = new TextComponent(String.format("%s", slime.getSlime().getUniqueId()));
-            textComponent
-                    .setClickEvent(new ClickEvent(Action.COPY_TO_CLIPBOARD, slime.getSlime().getUniqueId().toString()));
-            compB.append(textComponent);
+            // var textComponent = new TextComponent(String.format("%s",
+            // slime.getSlime().getUniqueId()));
+            // textComponent
+            // .setClickEvent(new ClickEvent(Action.COPY_TO_CLIPBOARD,
+            // slime.getSlime().getUniqueId().toString()));
+            // compB.append(textComponent);
 
-            compB.append(String.format(_a951486ab204c54f75f1c3e7a4965ca698af6b80, pathes.size()));
-            //a951486ab204c54f75f1c3e7a4965ca698af6b80
-            //"\n 経路数: %d \n 設定されている経路\n"
+            var event = ClickEvent.copyToClipboard(slime.getSlime().getUniqueId().toString());
+            component.append(Component.text(String.format("%s", slime.getSlime().getUniqueId())).clickEvent(event));
+
+            // compB.append(String.format(_a951486ab204c54f75f1c3e7a4965ca698af6b80,
+            // pathes.size()));
+            component.append(Component.text(String.format(_a951486ab204c54f75f1c3e7a4965ca698af6b80, pathes.size())));
+            // a951486ab204c54f75f1c3e7a4965ca698af6b80
+            // "\n 経路数: %d \n 設定されている経路\n"
             for (var path : pathes) {
-                compB.append(String.format(_3fab34b429f38db84ee86f7cfe34189d77ae3f07, pathes.indexOf(path),
-                        //3fab34b429f38db84ee86f7cfe34189d77ae3f07
-                        //"  # %d: x: %.3f, y: %.3f,z: %.3f, Exist?: %b \n"
-                        path.getX(),
-                        path.getY(),
-                        path.getZ(),
-                        _plugin.ziplineManager.verifyPath(slime)));
+                // compB.append(String.format(_3fab34b429f38db84ee86f7cfe34189d77ae3f07,
+                // pathes.indexOf(path),
+                // //3fab34b429f38db84ee86f7cfe34189d77ae3f07
+                // //" # %d: x: %.3f, y: %.3f,z: %.3f, Exist?: %b \n"
+                // path.getX(),
+                // path.getY(),
+                // path.getZ(),
+                // _plugin.ziplineManager.verifyPath(slime)));
+
+                component.append(
+                        Component.text(String.format(_3fab34b429f38db84ee86f7cfe34189d77ae3f07, pathes.indexOf(path),
+                                // 3fab34b429f38db84ee86f7cfe34189d77ae3f07
+                                // " # %d: x: %.3f, y: %.3f,z: %.3f, Exist?: %b \n"
+                                path.getX(),
+                                path.getY(),
+                                path.getZ(),
+                                _plugin.ziplineManager.verifyPath(slime))));
             }
 
             // 現在の向きで選択される経路
             List<Location> a = new ArrayList<Location>();
             var next = _plugin.zippingManager.culculateNextPath(slime, a, player);
-            compB.append(String.format(_a500580082225615f2358c1a97466e266109a282, pathes.indexOf(next)));
-            //a500580082225615f2358c1a97466e266109a282
-            //" 選択されうる経路: # %d\n"
+            // compB.append(String.format(_a500580082225615f2358c1a97466e266109a282,
+            // pathes.indexOf(next)));
+            component.append(
+                    Component.text(String.format(_a500580082225615f2358c1a97466e266109a282, pathes.indexOf(next))));
+            // a500580082225615f2358c1a97466e266109a282
+            // " 選択されうる経路: # %d\n"
         }
-        player.sendMessage(compB.create());
+        player.sendMessage(component);
+        // player.sendMessage(compB.create());
     }
 
 }

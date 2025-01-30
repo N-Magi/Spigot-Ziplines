@@ -11,6 +11,8 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.jetbrains.annotations.NotNull;
 
+import net.kyori.adventure.text.Component;
+
 public class PathSlime {
 
     private Slime _slime;
@@ -32,7 +34,8 @@ public class PathSlime {
     }
 
     private static void slimeSet(Slime slime) {
-        slime.setCustomName(CUSTOM_NAME);
+        slime.customName(Component.text(CUSTOM_NAME));
+        //slime.setCustomName(CUSTOM_NAME);
         slime.setAI(false);
         slime.setRemoveWhenFarAway(false);
         slime.setInvulnerable(true);

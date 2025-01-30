@@ -15,17 +15,19 @@ public class BukkitContainerSerializer {
             dataOut.close();
             return outstream.toByteArray();
         } catch (Exception e) {
+            //_plugin.getLogger().info("container wrote");
             return null; 
         }
     }
 
-    public static <Type> Type deserialize(byte[] data) {
+    public static <Type> Type deserialize(byte[] data){
         try {
             var inStream = new ByteArrayInputStream(data);
             var dataIn = new BukkitObjectInputStream(inStream);
             var res = (Type) dataIn.readObject();
             return res;
         } catch (Exception e) {
+            //throw new Exception(e.getMessage());
             return null;
         }
     }

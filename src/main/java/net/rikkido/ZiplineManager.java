@@ -26,7 +26,7 @@ import net.rikkido.Event.ZiplineEnterPlayerRangeHandler;
 
 public class ZiplineManager implements Listener {
 
-    private static boolean DEBUG = false;
+    private static boolean DEBUG = true;
     private Zipline _plugin;
     static String CUSTOM_NAME = "Rope";
 
@@ -270,21 +270,21 @@ public class ZiplineManager implements Listener {
         var res = new ArrayList<LeashHitch>();
         // どうせ消えるなら柵と同じ場所に生成させるようにする
         for (PathSlime slime : slimes) {
-            var hitch = spawnHitch(slime);
+            var hitch = spawnKnot(slime);
             res.add(hitch);
             slime.getSlime().setLeashHolder(hitch);
         }
         return res.toArray();
     }
 
-    public LeashHitch spawnHitch(PathSlime slime) {
+    public LeashHitch spawnKnot(PathSlime slime) {
         var world = slime.getSlime().getWorld();
         var hithes = world.getNearbyEntities(slime.getSlime().getLocation(), 1, 1, 1).stream()
-                .filter(s -> s.getType() == EntityType.LEASH_HITCH).toList();
+                .filter(s -> s.getType() == EntityType.LEASH_KNOT).toList();
         if (hithes.size() > 0) {
             return (LeashHitch) hithes.get(0);
         }
-        var hitch = world.spawnEntity(slime.getSlime().getLocation(), EntityType.LEASH_HITCH);
+        var hitch = world.spawnEntity(slime.getSlime().getLocation(), EntityType.LEASH_KNOT);
         return (LeashHitch) hitch;
 
     }
@@ -337,14 +337,29 @@ public class ZiplineManager implements Listener {
 
     @EventHandler
     public void onInteractByZiplineItem(PlayerInteractEvent event) {
+        if (DEBUG){         
+            var action = event.getAction();           
+            _plugin.getLogger().info(String.format("onInteractByZilineItem Actin:%s / Block:",action.toString()));
+            var item = event.getItem();
+            if(item != null)
+                _plugin.getLogger().info(item.toString());
+
+            var block = event.getClickedBlock();
+            if(block != null)
+                _plugin.getLogger().info(block.toString());
+
+        }
+        
         if (event.getAction() != Action.RIGHT_CLICK_BLOCK)
             return;
         var clicked_block = event.getClickedBlock();
         if (!isFenceItem(clicked_block.getType()))
             return;
         var player = event.getPlayer();
-        var items = player.getInventory().getItemInMainHand();
-        if (items.getType() != Material.LEAD)
+        //var items = player.getInventory().getItemInMainHand();
+        var items = event.getItem();
+
+        if (items == null || items.getType() != Material.LEAD)
             return;
         setUpZiplines(clicked_block, player);
     }
@@ -352,7 +367,7 @@ public class ZiplineManager implements Listener {
     @EventHandler
     public void onPathSlimeUnleash(HangingBreakByEntityEvent e) {
         var entity = e.getEntity();
-        if (entity.getType() != EntityType.LEASH_HITCH)
+        if (entity.getType() != EntityType.LEASH_KNOT)
             return;
         if (entity.getCustomName() == null)
             return;
@@ -362,6 +377,8 @@ public class ZiplineManager implements Listener {
     }
 
     public void setUpZiplines(Block clicked_block, Player player) {
+        if (DEBUG)
+            _plugin.getLogger().info("setUpZiplines");
         var items = player.getInventory().getItemInMainHand();
         if (items.getType() != Material.LEAD)
             return;
@@ -377,7 +394,6 @@ public class ZiplineManager implements Listener {
             _plugin.ziplimeitem.setZiplineFlag(items, dst_loc);
             if (DEBUG)
                 _plugin.getLogger().info("container wrote");
-
             return;
         }
 

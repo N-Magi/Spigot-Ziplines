@@ -26,7 +26,7 @@ import net.rikkido.Event.ZiplineEnterPlayerRangeHandler;
 
 public class ZiplineManager implements Listener {
 
-    private static boolean DEBUG = true;
+    private static boolean DEBUG = false;
     private Zipline _plugin;
     static String CUSTOM_NAME = "Rope";
 

@@ -55,7 +55,7 @@ public class PathSlime {
         if (!container.has(Namespacekey.PATH_SLIME, PersistentDataType.BYTE_ARRAY))
             return null;
         List<Location> res = BukkitContainerSerializer
-                .deserialize(container.get(Namespacekey.PATH_SLIME, PersistentDataType.BYTE_ARRAY));
+                .deserializeListLoc(container.get(Namespacekey.PATH_SLIME, PersistentDataType.BYTE_ARRAY));
         if (res == null)
             removePathData();
         return res;

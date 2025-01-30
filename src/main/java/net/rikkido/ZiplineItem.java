@@ -115,9 +115,10 @@ public class ZiplineItem implements IItemBase {
 
     public Location getZiplineFlag(ItemStack zipline) {
         if (isZiplineFlaged(zipline)) {
-            var res = BukkitContainerSerializer.deserialize(
+            var res = BukkitContainerSerializer.deserializeLoc(
                     zipline.getItemMeta().getPersistentDataContainer().get(KEY, PersistentDataType.BYTE_ARRAY));
             if (res != null)
+                //return Location.deserialize(res)
                 return (Location) res;
             removeZiplineFlag(zipline);
         }

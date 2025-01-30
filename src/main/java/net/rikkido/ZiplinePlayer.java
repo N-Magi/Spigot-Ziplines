@@ -20,7 +20,7 @@ public class ZiplinePlayer {
         if (!container.has(Namespacekey.ZIP_PLAYER, PersistentDataType.BYTE_ARRAY))
             return null;
         return BukkitContainerSerializer
-                .deserialize(container.get(Namespacekey.ZIP_PLAYER, PersistentDataType.BYTE_ARRAY));
+                .deserializeMP(container.get(Namespacekey.ZIP_PLAYER, PersistentDataType.BYTE_ARRAY));
     }
 
     public void setZippingData(MovePlayer mp) {

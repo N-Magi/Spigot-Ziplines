@@ -26,7 +26,7 @@ import net.rikkido.Event.ZiplineEnterPlayerRangeHandler;
 
 public class ZiplineManager implements Listener {
 
-    private static boolean DEBUG = true;
+    private static boolean DEBUG = false;
     private Zipline _plugin;
     static String CUSTOM_NAME = "Rope";
 
@@ -280,11 +280,11 @@ public class ZiplineManager implements Listener {
     public LeashHitch spawnKnot(PathSlime slime) {
         var world = slime.getSlime().getWorld();
         var hithes = world.getNearbyEntities(slime.getSlime().getLocation(), 1, 1, 1).stream()
-                .filter(s -> s.getType() == EntityType.LEASH_KNOT).toList();
+                .filter(s -> s.getType() == EntityType.LEASH_HITCH).toList();
         if (hithes.size() > 0) {
             return (LeashHitch) hithes.get(0);
         }
-        var hitch = world.spawnEntity(slime.getSlime().getLocation(), EntityType.LEASH_KNOT);
+        var hitch = world.spawnEntity(slime.getSlime().getLocation(), EntityType.LEASH_HITCH);
         return (LeashHitch) hitch;
 
     }
@@ -367,7 +367,7 @@ public class ZiplineManager implements Listener {
     @EventHandler
     public void onPathSlimeUnleash(HangingBreakByEntityEvent e) {
         var entity = e.getEntity();
-        if (entity.getType() != EntityType.LEASH_KNOT)
+        if (entity.getType() != EntityType.LEASH_HITCH)
             return;
         if (entity.getCustomName() == null)
             return;

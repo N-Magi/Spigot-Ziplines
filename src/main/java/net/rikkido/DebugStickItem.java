@@ -108,7 +108,7 @@ public class DebugStickItem implements IItemBase {
         // StringBuilder(_abd539a5e7800bcae6b5f3e2559c7a6e92835a5d), component);
         // var t_component = new TextComponent(ChatColor.RESET + "" + ChatColor.GOLD +
         // _abd539a5e7800bcae6b5f3e2559c7a6e92835a5d);
-        meta.addEnchant(Enchantment.UNBREAKING, 1, false);
+        meta.addEnchant(Enchantment.DURABILITY, 1, false);
         meta.getPersistentDataContainer().set(DEBUG, PersistentDataType.INTEGER, 1);
         meta.displayName(component);
         // meta.setDisplayName(ChatColor.RESET + "" + ChatColor.GOLD +
